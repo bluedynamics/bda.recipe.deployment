@@ -77,13 +77,18 @@ def version(args):
         return _set_version(args.package[0], args.version[0])
     return _show_version(args.package[0])
 
-sub_ver = deploy_subparsers.add_parser('version', 
-                                  help='Shows or sets version of package')
-sub_ver.add_argument('package', nargs=1, help='name of package')
 if config.check_env('dev'):    
+    sub_ver = deploy_subparsers.add_parser('version', 
+                                      help='Shows or sets version of package')
+    sub_ver.add_argument('package', nargs=1, help='name of package')
     sub_ver.add_argument('version', nargs='?', help='new version', 
                            default='show')
-sub_ver.set_defaults(func=version)
+    sub_ver.set_defaults(func=version)
+if config.check_env('rc'):    
+    sub_ver = deploy_subparsers.add_parser('version', 
+                                      help='Shows version of package')
+    sub_ver.add_argument('package', nargs=1, help='name of package')
+    sub_ver.set_defaults(func=version)
 
 #-------------------------------------------------------------------------------
 
@@ -178,11 +183,11 @@ def creatercbranch(args):
 if config.check_env('dev'):      
     sub_crc = single_subparsers.add_parser('creatercbranch', 
                                     help='Create RC branch for one or more '
-                                         'or all mamaged packages.')
+                                         'or all managed packages.')
     sub_crc_group = sub_crc.add_mutually_exclusive_group()
     sub_crc_group.add_argument('--all', '-a', action='store_true', 
                                help='all managed packages')
-    sub_crc_group.add_argument('package', nargs='+', help='package(s)')
+    sub_crc_group.add_argument('--package', '-p', nargs='+', help='package(s)')
     sub_crc.set_defaults(func=creatercbranch)
 
 #-------------------------------------------------------------------------------
@@ -265,7 +270,7 @@ if config.check_env('dev'):
     sub_ers_group = sub_ers.add_mutually_exclusive_group()
     sub_ers_group.add_argument('--all', '-a', action='store_true',
                                help='all managed packages')
-    sub_ers_group.add_argument('package', nargs='+', help='package(s)')
+    sub_ers_group.add_argument('--package' '-p', nargs='+', help='package(s)')
     sub_ers.set_defaults(func=exportrcsource)
 
 #-------------------------------------------------------------------------------
