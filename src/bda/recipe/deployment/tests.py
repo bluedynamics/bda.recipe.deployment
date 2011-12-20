@@ -12,9 +12,10 @@ optionflags = doctest.NORMALIZE_WHITESPACE | \
               doctest.REPORT_ONLY_FIRST_FAILURE
 
 TESTFILES = [
-    'common.txt',
-    'svn.txt',
-    'cleanup.txt',
+    'common.rst',
+    'svn.rst',
+    'cleanup.rst',
+    'main.rst'
 ]
 
 tempdir = tempfile.mkdtemp()

@@ -105,6 +105,9 @@ class Config(_ConfigMixin):
     
     def source(self, name):
         return self.read_option('sources', name)
+    
+    def check_env(self, env):
+        return self.env in ['all', env]       
 
 class RcSourcesCFG(_ConfigMixin):
     
@@ -344,7 +347,7 @@ class DeploymentPackage(object):
         
     
     def _check_environment(self, operation, env):
-        if self.config.env == 'all' or self.config.env == env:
+        if self.config.check_env(env):
             return
         msg = "Wrong environment for '%s' operation: '%s'" % (operation, env)
         raise DeploymentError(msg)

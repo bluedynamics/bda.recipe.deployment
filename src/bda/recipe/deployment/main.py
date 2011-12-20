@@ -1,11 +1,10 @@
 import os
-import sys
 import logging
+from argparse import ArgumentParser
 from bda.recipe.deployment import env
 from bda.recipe.deployment.common import (
     DeploymentError,
     Config,
-    ReleaseRC,
     PackageVersion,
     PWDManager,
     DeploymentPackage,
@@ -13,64 +12,111 @@ from bda.recipe.deployment.common import (
 
 log = logging.getLogger('bda.recipe.deployment')
 
-def repopasswd(*args):
-    args = args or sys.argv[1:]
-    if len(args) != 1:
-        log.error("Usage: repopasswd [servername]")
-        sys.exit(2)
+config = Config(env.CONFIG_PATH)
+
+#-------------------------------------------------------------------------------
+
+epilog =  'Current configured environment: '
+epilog += (config.check_env('dev') and 'DEVELOPMENT') or \
+          (config.check_env('rc') and 'RELEASE CANDIDATE') or \
+          'NOT SET!'
+    
+#-------------------------------------------------------------------------------
+
+deployparser = ArgumentParser(description='BDA Deployment Process', 
+                              epilog=epilog)
+deploy_subparsers = deployparser.add_subparsers(help='commands')
+
+def deploy():
+    args = deployparser.parse_args()
+    args.func(args)
+    
+#-------------------------------------------------------------------------------
+
+singleparser = ArgumentParser(description='BDA Deployment Process: '
+                                          'Helper Scripts',
+                              epilog=epilog)
+single_subparsers = singleparser.add_subparsers(help='commands')
+
+def deploy_single():
+    args = singleparser.parse_args()
+    args.func(args)
+
+#-------------------------------------------------------------------------------
+
+def repopasswd(args):
     log.info("Set user and password for server")
-    server = args[0]
-    config = Config(env.CONFIG_PATH)
-    if not config.config.has_option('distserver', server):
-        msg = "Cannot find desired server. Available servers are:\n"
-        for k, v in config.config.items('distserver'):
-            msg += "  * %s\n" % k
-        log.error(msg)
-        sys.exit(2)
-    pwdmgr = PWDManager(server)
+    pwdmgr = PWDManager(args.servername)
     pwdmgr.set()
 
-def version(*args):
-    args = args or sys.argv[1:]
-    if len(args) != 2:
-        if len(args)==1:
-            return showversion(*args)
-        log.error("Usage: version PACKAGE [VERSION]")
-        sys.exit(2)
+if config.check_env('rc'):    
+    sub_rp = deploy_subparsers.add_parser('repopasswd', 
+                                   help='Set user and password for server')
+    sub_rp.add_argument('distserver', nargs=1,
+                       choices=[k for k,v in config.config.items('distserver')],
+                       help='name of the distserver')
+    sub_rp.set_defaults(func=repopasswd)
+
+#-------------------------------------------------------------------------------
+
+def _set_version(package, version):
     log.info("Set version for package")
-    package, version = args
-    config = Config(env.CONFIG_PATH)
     deploymentpackage = DeploymentPackage(config, package)
-    try:
-        deploymentpackage._check_environment('set_version', 'dev')
-    except DeploymentError, e:
-        log.error("Cannot set version: %s" % e)
-        return
     path = os.path.join(config.sources_dir, package, 'setup.py')
     if not os.path.exists(path):
         log.error("Invalid package name %s" % package)
     pv = PackageVersion(path)
     pv.version = version
-    
-def showversion(*args):    
-    args = args or sys.argv[1:]
-    if len(args) != 1:
-        log.error("Usage: showversion [PACKAGE] ")
-        sys.exit(2)
-    log.debug("Show version")
-    package = args[0]
-    config = Config(env.CONFIG_PATH)
+
+def _show_version(package):    
     deploymentpackage = DeploymentPackage(config, package)
     log.info("Version: %s = %s" % (package, deploymentpackage.version))
 
-def commit(*args):
-    args = args or sys.argv[1:]
-    if len(args) != 3:
-        log.error("Usage: commit [package] [resource] [message]")
-        sys.exit(2)
+def version(args):
+    if config.check_env('dev') and args.version[0] is not 'show':
+        return _set_version(args.package[0], args.version[0])
+    return _show_version(args.package[0])
+
+sub_ver = deploy_subparsers.add_parser('version', 
+                                  help='Shows or sets version of package')
+sub_ver.add_argument('package', nargs=1, help='name of package')
+if config.check_env('dev'):    
+    sub_ver.add_argument('version', nargs='?', help='new version', 
+                           default='show')
+sub_ver.set_defaults(func=version)
+
+#-------------------------------------------------------------------------------
+
+def info(args):
+    packages = sorted(config.as_dict('packages').keys())
+    maxlen = max([len(_) for _ in packages])
+    def fill(msg, ml=maxlen):
+        return "%s%s" % (msg, ' ' * (ml-len(msg)))
+    cols = ("%s " * 5)
+    log.info(cols % (maxlen*'-', 10*'-', 10*'-', 10*'-', 10*'-'))
+    log.info(cols % (fill('package'), 
+                     fill('location', 10),                      
+                     fill('release', 10), 
+                     fill('svn (%s)' % config.env, 10),
+                     fill('rc-branch', 10)))
+    log.info(cols % (maxlen*'-', 10*'-', 10*'-', 10*'-', 10*'-'))
+    for package in sorted(config.as_dict('packages').keys(), key=str.lower):
+        dp = DeploymentPackage(config, package)        
+        log.info(cols % (fill(package), 
+                         fill(config.package(package), 10),
+                         fill(dp.live_version or 'not set', 10),
+                         fill(dp.version, 10),
+                         fill(dp.rc_source and 'yes' or 'no', 10)))
+    log.info(cols % (maxlen*'-', 10*'-', 10*'-', 10*'-', 10*'-'))
+
+sub_inf = deploy_subparsers.add_parser('info', 
+                                  help='Show information about current state.')
+sub_inf.set_defaults(func=info)
+
+#-------------------------------------------------------------------------------
+
+def _commit(package, resource, message):
     log.info("Commit resource")
-    package, resource, message = args
-    config = Config(env.CONFIG_PATH)
     deploymentpackage = DeploymentPackage(config, package)
     try:
         deploymentpackage.commit(resource, message)
@@ -80,34 +126,42 @@ def commit(*args):
     except Exception, e:
         log.error("An error occured: %s" % e)
 
-def merge(*args):
-    args = args or sys.argv[1:]
-    if len(args) < 1:
-        log.error("Usage: merge PACKAGE [RESOURCE]")
-        sys.exit(2)
+def commit(args):
+    return _commit(args.package[0], args.resource[0], args.message[0])
+
+sub_ci = single_subparsers.add_parser('commit', 
+                                      help='Commit (and push) a resource.')
+sub_ci.add_argument('package', nargs=1, help='name of package')
+sub_ci.add_argument('resource', nargs='?', help='path to resource')
+sub_ci.add_argument('message', nargs='?', help='commit message')
+sub_ci.set_defaults(func=commit, resource=None, 
+                    message='manual deployment commit')
+
+#-------------------------------------------------------------------------------
+
+def merge(args):
     log.info("Merge resource to RC")
-    package = args[0]
-    resource = len(args) > 1 and args[1] or None
-    config = Config(env.CONFIG_PATH)
-    deploymentpackage = DeploymentPackage(config, package)
+    deploymentpackage = DeploymentPackage(config, args.package[0])
     try:
-        deploymentpackage.merge(resource)
+        deploymentpackage.merge(args.resource[0])
     except DeploymentError, e:
         log.error("Merging failed: %s" % e)
         return
     except Exception, e:
         log.error("An error occured: %s" % e)
-    
-def creatercbranch(*args):
-    args = args or sys.argv[1:]
-    if len(args) < 1:
-        log.error("Usage: creatercbranch [--all] | [package] [package2] ... ")
-        sys.exit(2)
-    config = Config(env.CONFIG_PATH)
-    if args[0].strip() == '--all':        
+
+if config.check_env('rc'):  
+    sub_merge = deploy_subparsers.add_parser('merge', 
+                                             help='Merge resource to RC')
+    sub_merge.add_argument('package', nargs=1, help='name of package')
+    sub_merge.add_argument('resource', nargs='?', help='path to resource')
+    sub_merge.set_defaults(func=merge, resource=None)
+
+#-------------------------------------------------------------------------------
+
+def _creatercbranch(all, packages):
+    if all:        
         packages = config.as_dict('packages').keys()
-    else: 
-        packages = args
     for package in packages:
         deploymentpackage = DeploymentPackage(config, package)
         try:
@@ -117,16 +171,25 @@ def creatercbranch(*args):
             continue
         except Exception, e:
             log.error("An error occured: %s" % e)      
+
+def creatercbranch(args):
+    return _creatercbranch(args.all, args.package)
     
-def tag(*args):
-    args = args or sys.argv[1:]
-    if len(args) != 1:
-        log.error("Usage: tag [package]")
-        sys.exit(2)
+if config.check_env('dev'):      
+    sub_crc = single_subparsers.add_parser('creatercbranch', 
+                                    help='Create RC branch for one or more '
+                                         'or all mamaged packages.')
+    sub_crc_group = sub_crc.add_mutually_exclusive_group()
+    sub_crc_group.add_argument('--all', '-a', action='store_true', 
+                               help='all managed packages')
+    sub_crc_group.add_argument('package', nargs='+', help='package(s)')
+    sub_crc.set_defaults(func=creatercbranch)
+
+#-------------------------------------------------------------------------------
+
+def tag(args):
     log.info("Tag package")
-    package = args[0]
-    config = Config(env.CONFIG_PATH)
-    deploymentpackage = DeploymentPackage(config, package)
+    deploymentpackage = DeploymentPackage(config, args.package[0])
     try:
         deploymentpackage.tag()
     except DeploymentError, e:
@@ -135,15 +198,16 @@ def tag(*args):
     except Exception, e:
         log.error("An error occured: %s" % e)
 
-def release(*args):
-    args = args or sys.argv[1:]
-    if len(args) != 1:
-        log.error("Usage: release [packagename]")
-        sys.exit(2)
+if config.check_env('rc'):      
+    sub_tag = single_subparsers.add_parser('tag', help='Tag a package')
+    sub_tag.add_argument('package', nargs=1, help='name of package')
+    sub_tag.set_defaults(func=tag)
+
+#-------------------------------------------------------------------------------
+
+def release(args):
     log.info("Release package")
-    package = args[0]
-    config = Config(env.CONFIG_PATH)
-    deploymentpackage = DeploymentPackage(config, package)
+    deploymentpackage = DeploymentPackage(config, args.package[0])
     try:
         deploymentpackage.release()
     except DeploymentError, e:
@@ -152,15 +216,16 @@ def release(*args):
     except Exception, e:
         log.error("An error occured: %s" % e)
 
+if config.check_env('rc'):      
+    sub_rel = single_subparsers.add_parser('release', help='Release package')
+    sub_rel.add_argument('package', nargs=1, help='name of package')
+    sub_rel.set_defaults(func=release)
+
+#-------------------------------------------------------------------------------
+
 def exportliveversion(*args):
-    args = args or sys.argv[1:]
-    if len(args) != 1:
-        log.error("Usage: exportliveversion [packagename]")
-        sys.exit(2)
     log.info("Export live version")
-    package = args[0]
-    config = Config(env.CONFIG_PATH)
-    deploymentpackage = DeploymentPackage(config, package)
+    deploymentpackage = DeploymentPackage(config, args.package[0])
     try:
         deploymentpackage.export_version()
     except DeploymentError, e:
@@ -169,16 +234,17 @@ def exportliveversion(*args):
     except Exception, e:
         log.error("An error occured: %s" % e)
 
-def exportrcsource(*args):
-    args = args or sys.argv[1:]
-    if len(args) != 1:
-        log.error("Usage: exportrcsource [--all] | [packagename]")
-        sys.exit(2)
-    config = Config(env.CONFIG_PATH)
-    if args[0].strip() == '--all':        
+if config.check_env('rc'):      
+    sub_elv = single_subparsers.add_parser('exportliveversion', 
+                                           help='Export live version cfg file')
+    sub_elv.add_argument('package', nargs=1, help='name of package')
+    sub_rel.set_defaults(func=exportliveversion)
+
+#-------------------------------------------------------------------------------
+
+def _exportrcsource(_all, packages):
+    if _all:        
         packages = config.as_dict('packages').keys()
-    else: 
-        packages = args
     log.info("Export rc source")
     for package in packages:        
         deploymentpackage = DeploymentPackage(config, package)
@@ -189,11 +255,25 @@ def exportrcsource(*args):
             continue
         except Exception, e:
             log.error("An error occured: %s" % e)
+
+def exportrcsource(args):
+    return _exportrcsource(args.all, args.package)
     
-def deploycandidate():
+if config.check_env('dev'):      
+    sub_ers = single_subparsers.add_parser('exportrcsource', 
+                                           help='Export RC source cfg file')
+    sub_ers_group = sub_ers.add_mutually_exclusive_group()
+    sub_ers_group.add_argument('--all', '-a', action='store_true',
+                               help='all managed packages')
+    sub_ers_group.add_argument('package', nargs='+', help='package(s)')
+    sub_ers.set_defaults(func=exportrcsource)
+
+#-------------------------------------------------------------------------------
+
+def candidate(args):
     """deploy to release candidate
      
-    ./bin/deployrc PACKAGENAME VERSIONNUMBER
+    ./bin/deploy candidate PACKAGENAME VERSIONNUMBER
     
     - set version
     - commit setup.py
@@ -201,12 +281,7 @@ def deploycandidate():
     - export rc sources
     - commit rc sources    
     """
-    if len(sys.argv) != 3:
-        log.error("Usage: %s [packagename] [version]" % sys.argv[0])
-        sys.exit(2)    
-    package = sys.argv[1]
-    newversion = sys.argv[2]
-    config = Config(env.CONFIG_PATH)
+    package, newversion = args.package[0], args.version[0]
     deploymentpackage = DeploymentPackage(config, package)
     try:
         deploymentpackage._check_environment('deploycandidate', 'dev')
@@ -215,27 +290,37 @@ def deploycandidate():
         return
     log.info("Complete deployment of release candidate %s with version %s" % 
              (package, newversion))
-    version(package, newversion)
-    commit(package, 'setup.py', 'Version Change')
-    creatercbranch(package)
-    exportrcsource(package)
-    deploymentpackage.commit_rc_source()
+    try:
+        _set_version(package, newversion)
+        deploymentpackage.commit('setup.py', 'Version Change')
+        deploymentpackage.creatercbranch()
+        deploymentpackage.export_version()
+        deploymentpackage.commit_rc_source()
+    except DeploymentError, e:
+        log.error("Candidate deployment failed: %s" % e)
+    except Exception, e:
+        log.error("An error occured: %s" % e)
 
-def deployrelease():
+if config.check_env('dev'):      
+    sub_can = deploy_subparsers.add_parser('candidate', 
+                                    help='Deploy package to release candidate')
+    sub_can.add_argument('package', nargs=1, help='name of package')
+    sub_can.add_argument('version', nargs=1, help='new version number')
+    sub_can.set_defaults(func=candidate)
+
+#-------------------------------------------------------------------------------
+
+def fullrelease(args):
     """deploy to release on package index
     
-    ./bin/deployrelease [packagename]
+    ./bin/deploy release [packagename]
     
     - tag version
     - export live version
     - release to package index server
     - commit live versions   
     """
-    if len(sys.argv) != 2:
-        log.error("Usage: %s [packagename]" % sys.argv[0])
-        sys.exit(2)
-    package = sys.argv[1]
-    config = Config(env.CONFIG_PATH)
+    package = args.package[0]
     deploymentpackage = DeploymentPackage(config, package)
     try:
         deploymentpackage._check_environment('deploycandidate', 'rc')
@@ -269,27 +354,8 @@ def deployrelease():
     except Exception, e:
         log.error("An error occured: %s" % e)
         
-def showall():
-    config = Config(env.CONFIG_PATH)
-    packages = sorted(config.as_dict('packages').keys())
-    maxlen = max([len(_) for _ in packages])
-    def fill(msg, ml=maxlen):
-        return "%s%s" % (msg, ' ' * (ml-len(msg)))
-    cols = ("%s " * 5)
-    log.info(cols % (maxlen*'-', 10*'-', 10*'-', 10*'-', 10*'-'))
-    log.info(cols % (fill('package'), 
-                     fill('location', 10),                      
-                     fill('release', 10), 
-                     fill('svn (%s)' % config.env, 10),
-                     fill('rc-branch', 10)))
-    log.info(cols % (maxlen*'-', 10*'-', 10*'-', 10*'-', 10*'-'))
-    for package in sorted(config.as_dict('packages').keys(), key=str.lower):
-        dp = DeploymentPackage(config, package)        
-        log.info(cols % (fill(package), 
-                         fill(config.package(package), 10),
-                         fill(dp.live_version or 'not set', 10),
-                         fill(dp.version, 10),
-                         fill(dp.rc_source and 'yes' or 'no', 10)))
-    log.info(cols % (maxlen*'-', 10*'-', 10*'-', 10*'-', 10*'-'))
-        
-        
+if config.check_env('rc'):      
+    sub_rls = deploy_subparsers.add_parser('release', 
+                                    help='Deploy release to package index')
+    sub_rls.add_argument('package', nargs=1, help='name of package')
+    sub_rls.set_defaults(func=fullrelease)
