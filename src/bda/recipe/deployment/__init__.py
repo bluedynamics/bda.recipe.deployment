@@ -14,3 +14,4 @@ hdlr.setFormatter(formatter)
 log.addHandler(hdlr)
 
 import svn
+import git
