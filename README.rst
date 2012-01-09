@@ -1,6 +1,8 @@
 Deployment Buildout-Recipe and Scripts
 ======================================
 
+OUTDATED
+
 Integrated buildouts with release cycles. Development in subversion, release
 candidate as branch in subversion, release against public or own egg-server 
 (Package Index).

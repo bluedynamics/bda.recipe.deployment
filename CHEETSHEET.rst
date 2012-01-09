@@ -2,6 +2,8 @@
 bda.recipe.deployment cheatsheet
 ================================
 
+OUTDATED
+
 Deploy candidate
 ================
 
