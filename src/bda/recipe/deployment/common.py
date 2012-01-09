@@ -222,33 +222,15 @@ class DeploymentPackage(object):
     
     def commit_rc_source(self):
         """Function committing RC source file.
-        
-        XXX: move logic to connector.
-        """
-        connector = self.connectors['svn'](self) # XXX
-        url = self.config.deployment_base[4:] # XXX
-        message = '"RC Sources changed"'
-        args = ["svn", "ci", self.config.rc, '-m', message]
-        kwargs = {}
-        msg = ' '.join(args)
-        log.info(msg)
-        stdout, stderr, returncode = connector._svn_communicate(args, url,
-                                                           **kwargs)
+                """
+        self._check_environment('commit_rc_source', 'dev')
+        self.commit(self.config.rc, '"RC Sources changed"')
     
     def commit_live_versions(self):
         """Function committing RC source file.
-        
-        XXX: move logic to connector.
         """
-        connector = self.connectors['svn'](self) # XXX
-        url = self.config.deployment_base[4:] # XXX
-        message = '"Live versions changed"'
-        args = ["svn", "ci", self.config.live, '-m', message]
-        kwargs = {}
-        msg = ' '.join(args)
-        log.info(msg)
-        stdout, stderr, returncode = connector._svn_communicate(args, url,
-                                                           **kwargs)
+        self._check_environment('commit_live_source', 'rc')
+        self.commit(self.config.rc, '"LIVE Sources changed"')
     
     def merge(self, resource=None):
         """Merge from trunk to rc.
@@ -315,8 +297,6 @@ class DeploymentPackage(object):
         """Export package rc repo info to configured rc sources config.
         
         Function only callable in ``dev`` environment.
-        
-        Raise ``DeploymentError`` if called in wrong environment.
         """
         self._check_environment('export_rc', 'dev')
         sources = RcSourcesCFG(self.config.rc)
@@ -332,8 +312,6 @@ class DeploymentPackage(object):
         """Export current resource version to configured live versions config.
         
         Function only callable in ``rc`` environment.
-        
-        Raise ``DeploymentError`` if called in wrong environment.
         """
         self._check_environment('export_version', 'rc')
         versions = LiveVersionsCFG(self.config.live)
