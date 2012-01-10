@@ -362,7 +362,10 @@ class DeploymentPackage(object):
     @property
     def version(self):
         path = os.path.join(self.package_path, 'setup.py')
-        return PackageVersion(path).version
+        if os.path.exists(path):
+            return PackageVersion(path).version
+        else: 
+            return 'unversioned' 
     
     @property
     def package_uri(self):

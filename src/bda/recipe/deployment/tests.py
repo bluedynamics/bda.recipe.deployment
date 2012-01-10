@@ -14,7 +14,7 @@ optionflags = doctest.NORMALIZE_WHITESPACE | \
 TESTFILES = [
     'common.rst',
     'svn.rst',
-    'cleanup.rst',
+    'git.rst',
     'main.rst'
 ]
 

@@ -13,9 +13,8 @@ class GitConnector(object):
         self.source['name'] = package.package
         self.source['path'] = package.package_path
         self.source['url'] = package.package_uri
-        self.git_wc = gitWorkingCopyFactory(self.source) 
-                
-                
+        self.git_wc = gitWorkingCopyFactory(self.source)
+                       
     def commit(self, resource, message):
         """Commit means here a commit and push in one
         """
