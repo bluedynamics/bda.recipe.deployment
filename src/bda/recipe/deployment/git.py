@@ -15,7 +15,7 @@ class GitConnector(object):
         self.source['url'] = package.package_uri
         self.git_wc = gitWorkingCopyFactory(self.source)
                        
-    def commit(self, resource, message):
+    def commit(self, resource='-a', message='bda.recipe.deployment run'):
         """Commit means here a commit and push in one
         """
         cmd = self.git_wc.run_git(["commit", resource, "--quiet", '-m', message])
