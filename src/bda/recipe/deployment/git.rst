@@ -72,7 +72,7 @@ Prepare connector
 Clone Repo
 ::::::::::
 
-So lets see if we can clone this, aka checkout in the mr.developer world::
+So lets see if we can clone this, ak a checkout in the mr.developer world::
 
     >>> connector.git_wc.git_checkout()
     >>> DUMMYFILEPATH = os.path.join(SOURCESDIR, 'foo', 'dummy.txt')

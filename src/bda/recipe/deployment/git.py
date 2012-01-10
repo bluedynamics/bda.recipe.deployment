@@ -18,12 +18,13 @@ class GitConnector(object):
     def commit(self, resource='-a', message='bda.recipe.deployment run'):
         """Commit means here a commit and push in one
         """
-        cmd = self.git_wc.run_git(["commit", resource, "--quiet", '-m', message])
+        cmd = self.git_wc.run_git(["commit", resource, "--quiet", '-m', 
+                                   message], cwd=self.source['path'])
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise DeploymentError("git commit of '%s' failed.\n%s" % \
                                   (resource, stderr))
-        cmd = self.git_wc.run_git(["push", "--quiet"])
+        cmd = self.git_wc.run_git(["push", "--quiet"], cwd=self.source['path'])
         stdout, stderr = cmd.communicate()
         if cmd.returncode != 0:
             raise DeploymentError("git push of '%s' failed.\n%s" % \
