@@ -75,7 +75,7 @@ Clone Repo
 So lets see if we can clone this, ak a checkout in the mr.developer world::
 
     >>> connector.git_wc.git_checkout()
-    >>> DUMMYFILEPATH = os.path.join(SOURCESDIR, 'foo', 'dummy.txt')
+    >>> DUMMYFILEPATH = os.path.join(connector.source['path'], 'dummy.txt')
     >>> os.path.exists(DUMMYFILEPATH)
     True
         
@@ -89,6 +89,9 @@ Commit Tests
     ...     dummyfile.write('another line\n')
     >>> connector.commit()    
 
+    >>> cmd = gwc.run_git(['status'], cwd=connector.source['path'])
+    >>> cmd.communicate()
+    ('# On branch master\nnothing to commit (working directory clean)\n', '')
 
 
 Create RC Branch Tests
