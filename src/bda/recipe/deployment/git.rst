@@ -85,13 +85,17 @@ Commit Tests
 
 ::
 
+    >>> connector.git_wc.status()
+    'clean'
+
     >>> with open(DUMMYFILEPATH, 'a') as dummyfile:
     ...     dummyfile.write('another line\n')
-    >>> connector.commit()    
+    >>> connector.git_wc.status()
+    'dirty'
 
-    >>> cmd = gwc.run_git(['status'], cwd=connector.source['path'])
-    >>> cmd.communicate()
-    ('# On branch master\nnothing to commit (working directory clean)\n', '')
+    >>> connector.commit()    
+    >>> connector.git_wc.status()
+    'clean'
 
 
 Create RC Branch Tests
