@@ -36,12 +36,21 @@ class GitConnector(object):
     
     def creatercbranch(self):
         """creates rc branch if not exists"""
+        # check if clean, if not commit
+        # check if branch already exists
+        # if yes, log and return direct        
+        # create local branch
+        # push branch to server
         raise NotImplementedError('TODO')
     
     def tag(self):
         """Tag package from rc  with version. Use version of
         package ``setup.py``
         """
+        # check if clean, if not commit
+        # check if tag for current version exists
+        # if yes raise DeploymentError
+        # set tag for current rc branch revision 
         raise NotImplementedError('TODO')
         
 DeploymentPackage.connectors['git'] = GitConnector
