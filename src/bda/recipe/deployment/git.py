@@ -32,15 +32,20 @@ class GitConnector(object):
     
     def merge(self, resource):
         """merges changes from dev branch to rc branch"""
+        # check if clean, if not commit
+        # check if rc branch exists, if not create it (calls creatercbranch)
+        # 
+        # check if on rc-branch, if not checkout rc branch 
         raise NotImplementedError('TODO')
     
     def creatercbranch(self):
         """creates rc branch if not exists"""
         # check if clean, if not commit
-        # check if branch already exists
-        # if yes, log and return direct        
-        # create local branch
-        # push branch to server
+        # check if branch already exists, if yes, log and return direct        
+        # create local branch and checkout
+        # check if rc branch exists on server, 
+        #    if yes set origin and pull
+        #    if no  set origin and push new branch to server
         raise NotImplementedError('TODO')
     
     def tag(self):
@@ -48,8 +53,7 @@ class GitConnector(object):
         package ``setup.py``
         """
         # check if clean, if not commit
-        # check if tag for current version exists
-        # if yes raise DeploymentError
+        # check if tag for current version exists, if yes raise DeploymentError
         # set tag for current rc branch revision 
         raise NotImplementedError('TODO')
         
