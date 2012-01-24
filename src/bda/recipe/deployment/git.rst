@@ -122,6 +122,11 @@ Check has RC branch.
     >>> connector.git_wc.status()
     'clean'    
 
+    >>> [sorted(_.items()) for _ in connector._get_branches()]
+    [[('alias', None), ('branch', 'master'), ('current', False), ('remote', None)], 
+    [('alias', None), ('branch', 'rc'), ('current', True), ('remote', None)], 
+    [('alias', 'origin/HEAD'), ('branch', 'master'), ('current', False), ('remote', 'origin')], 
+    [('alias', None), ('branch', 'rc'), ('current', False), ('remote', 'origin')]]
     
     
 Merge Tests

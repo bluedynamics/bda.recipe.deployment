@@ -25,7 +25,7 @@ class GitConnector(object):
         if cmd.returncode == 0:
             return stdout, stderr, cmd
         log.error(msg)
-        command = 'cmd="%s"' % ' '.join(command)
+        command = 'git %s' % ' '.join(command)
         message = '\n'.join(command, msg, stdout, stderr) 
         raise DeploymentError('Failed command: %s' % message)
         
@@ -33,7 +33,8 @@ class GitConnector(object):
     def commit(self, resource='-a', message='bda.recipe.deployment run'):
         """Commit means here a commit and push in one
         """
-        log.info('Initiate commit  %s' % resource == '-a' and 'all' or resource)
+        log.info('Initiate commit  %s' % (resource == '-a' and 'all' or 
+                                          resource))
         stdout, stderr, cmd = self._rungit(["commit", resource, "--quiet", '-m', 
                                              message])
         stdout, stderr, cmd = self._rungit(["push", "--quiet"])
@@ -64,7 +65,6 @@ class GitConnector(object):
                 remotename, branchname = None, loc
             return remotename, branchname
         for line in stdout.split('\n'):
-            log.info(line)
             if not line:
                 continue
             current = line.startswith('*')
