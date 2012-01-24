@@ -122,6 +122,7 @@ class GitConnector(object):
     
     def merge(self, resource=None):
         """merges changes from dev branch to rc branch"""
+        log.info('Merge master into rc branch')
         if self.status == DIRTY:
             self.commit(message='bda.recipe.deployment pre merge commit')
         if self.status == DIRTY:
@@ -134,26 +135,30 @@ class GitConnector(object):
         self._pull('rc')
         stdout, stderr, cmd = self._rungit(["checkout", "rc"])
         stdout, stderr, cmd = self._rungit(["merge", "master"])
+        log.info('Merge done')
 
     def _tags(self):
         stdout, stderr, cmd = self._rungit(["tag"])
-        return [_.strip() for _ in stdout.split('\n')]
+        return [_.strip() for _ in stdout.split('\n') if _.strip()]
+    
+    def _tag(self, version, msg):
+        stdout, stderr, cmd = self._rungit(["tag", '-a', version, '-m', msg])
+        
     
     def tag(self):
         """Tag package from rc  with version. Use version of
         package ``setup.py``
         """
         version = self.package.version
+        log.info('Tags version %s' % version) 
         if self.status == DIRTY:
             self.commit(message='bda.recipe.deployment pre tag commit')
-        # check if tag for current version exists, if yes raise DeploymentError
         if version in self._tags():
             raise DeploymentError('Tag %s already exist for %s.' % 
                                   (version, self.source['name']))            
-        # set tag for current rc branch revision 
-        # commit (needed for a tag, need to figure out) 
-        # push changes to server  
-        raise NotImplementedError('TODO')
+        self._tag(version, 'version tag set by bda.recipe.deployment') 
+        stdout, stderr, cmd = self._rungit(["push", "--tags"])
+        log.info('Tagging done')
     
     # proxy method
     @property

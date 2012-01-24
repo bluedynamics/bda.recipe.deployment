@@ -195,6 +195,19 @@ Tag Tests
     >>> connector._tags()
     []
     
+    >>> connector._tag('vTest', 'test version')
+    >>> connector._tags()
+    ['vTest']
+    
+    >>> connector.package.version
+    'unversioned'    
+
+    >>> connector.tag()
+    >>> sorted(connector._tags())
+    ['unversioned', 'vTest']
+
+    >>> connector.git_wc.status()
+    'clean'    
     
 
 Cleanup
