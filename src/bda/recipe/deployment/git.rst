@@ -101,9 +101,7 @@ Commit Tests
 Create RC Branch Tests
 ----------------------
 
-Check has RC branch.
-
-::
+Check has RC branch::
 
     >>> [sorted(_.items()) for _ in connector._get_branches()]
     [[('alias', None), ('branch', 'master'), ('current', True), ('remote', None)], 
@@ -114,8 +112,12 @@ Check has RC branch.
 
     >>> connector._has_rc_branch(remote=True)
     False
+
+Create both, remote and local::
     
     >>> connector.creatercbranch()
+    True
+    
     >>> connector._has_rc_branch()
     True
 
@@ -127,7 +129,29 @@ Check has RC branch.
     [('alias', None), ('branch', 'rc'), ('current', True), ('remote', None)], 
     [('alias', 'origin/HEAD'), ('branch', 'master'), ('current', False), ('remote', 'origin')], 
     [('alias', None), ('branch', 'rc'), ('current', False), ('remote', 'origin')]]
+
+Subsquent call on existent branch::
+
+    >>> connector.creatercbranch()
+    False
     
+Remove local branch and try fetching of remote::
+
+    >>> stdout, stderr, cmd = connector._rungit(['checkout', 'master']) 
+    >>> stdout, stderr, cmd = connector._rungit(['branch', '-d', 'rc']) 
+    
+    >>> connector._has_rc_branch()
+    False
+
+    >>> connector._has_rc_branch(remote=True)
+    True
+
+    >>> connector.creatercbranch()
+    True
+
+    >>> connector._has_rc_branch()
+    True
+        
     
 Merge Tests
 -----------

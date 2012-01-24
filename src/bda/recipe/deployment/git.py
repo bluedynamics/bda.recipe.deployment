@@ -26,7 +26,7 @@ class GitConnector(object):
             return stdout, stderr, cmd
         log.error(msg)
         command = 'git %s' % ' '.join(command)
-        message = '\n'.join(command, msg, stdout, stderr) 
+        message = '\n'.join([command, msg, stdout, stderr]) 
         raise DeploymentError('Failed command: %s' % message)
         
                        
@@ -101,17 +101,17 @@ class GitConnector(object):
             log.warning('RC branch already exist, abort create.')
             # here (not sure) we might check if a remote branch exists and if 
             # yes, connect it to the local branch, but OTOH this can be wrong
-            return
+            return False
         if self._has_rc_branch(remote=True):
             log.info('Remote rc branch exists, checkout')
             stdout, stderr, cmd = self._rungit(["checkout", "-b", "rc", 
                                                 "origin/rc"])
-            return
+            return True
         else:
             log.info('No remote rc branch, checkout new and push')
             stdout, stderr, cmd = self._rungit(["checkout", "-b", "rc"])
             stdout, stderr, cmd = self._rungit(["push", "-u", "origin", "rc"])
-            return
+            return True
     
     def merge(self, resource):
         """merges changes from dev branch to rc branch"""
@@ -139,7 +139,7 @@ class GitConnector(object):
         # push changes to server  
         raise NotImplementedError('TODO')
     
-    # some proxy methods
+    # proxy method
     @property
     def status(self):
         return self.git_wc.status()
