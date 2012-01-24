@@ -5,7 +5,7 @@ from bda.recipe.deployment.common import DeploymentError
 from bda.recipe.deployment.common import DeploymentPackage
 import logging
 
-log = logging.getLogger('bda.recipe.deployment')
+log = logging.getLogger('bda.recipe.deployment svn')
 
 class SVNConnector(SVNWorkingCopy):
     

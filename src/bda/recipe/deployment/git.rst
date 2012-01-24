@@ -101,9 +101,28 @@ Commit Tests
 Create RC Branch Tests
 ----------------------
 
+Check has RC branch.
+
 ::
 
-    TODO
+    >>> [sorted(_.items()) for _ in connector._get_branches()]
+    [[('alias', None), ('branch', 'master'), ('current', True), ('remote', None)], 
+    [('alias', 'origin/HEAD'), ('branch', 'master'), ('current', False), ('remote', 'origin')]]
+
+    >>> connector._has_rc_branch()
+    False
+
+    >>> connector._has_rc_branch(remote=True)
+    False
+    
+    >>> connector.creatercbranch()
+    >>> connector._has_rc_branch()
+    True
+
+    >>> connector.git_wc.status()
+    'clean'    
+
+    
     
 Merge Tests
 -----------
