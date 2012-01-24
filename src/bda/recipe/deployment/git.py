@@ -28,16 +28,20 @@ class GitConnector(object):
         command = 'git %s' % ' '.join(command)
         message = '\n'.join([command, msg, stdout, stderr]) 
         raise DeploymentError('Failed command: %s' % message)
-        
+
+    def _pull(self, branch='master'):
+        log.info('Initiate pull origin %s' % branch)
+        cmd = ['pull', 'origin', branch]
+        stdout, stderr, cmd = self._rungit(cmd)
+        log.info('Pull done.')                        
                        
     def commit(self, resource='-a', message='bda.recipe.deployment run'):
         """Commit means here a commit and push in one
         """
         log.info('Initiate commit  %s' % (resource == '-a' and 'all' or 
                                           resource))
-        stdout, stderr, cmd = self._rungit(["commit", resource, "--quiet", '-m', 
-                                             message])
-        stdout, stderr, cmd = self._rungit(["push", "--quiet"])
+        stdout, stderr, cmd = self._rungit(["commit", resource, '-m', message])
+        stdout, stderr, cmd = self._rungit(["push"])
         log.info('Commit done.')                        
 
     def _has_rc_branch(self, remote=False):
@@ -45,6 +49,9 @@ class GitConnector(object):
         context = remote and 'origin' or None
         return bool([_ for _ in branches 
                      if _['branch']=='rc' and _['remote']==context])
+        
+    def _current_branch(self):
+        return [_['branch'] for _ in self._get_branches() if _['current']][0]
     
     def _get_branches(self):
         """a list with value as dict with:
@@ -113,19 +120,19 @@ class GitConnector(object):
             stdout, stderr, cmd = self._rungit(["push", "-u", "origin", "rc"])
             return True
     
-    def merge(self, resource):
+    def merge(self, resource=None):
         """merges changes from dev branch to rc branch"""
         if self.status == DIRTY:
             self.commit(message='bda.recipe.deployment pre merge commit')
         if self.status == DIRTY:
             raise DeploymentError('Not clean after pre merge commit: %s' %\
                                   self.source['name'])
-        # check if rc branch exists, if not create it (calls creatercbranch)
         if not self._has_rc_branch():
             self.creatercbranch()
-        # check if on rc-branch, if not checkout rc branch
-        # pull from origin
-        raise NotImplementedError('TODO')
+        self._pull()
+        self._pull('rc')
+        stdout, stderr, cmd = self._rungit(["checkout", "rc"])
+        stdout, stderr, cmd = self._rungit(["merge", "master"])
     
     
     def tag(self):

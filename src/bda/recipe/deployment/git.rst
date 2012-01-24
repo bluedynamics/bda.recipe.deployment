@@ -109,6 +109,9 @@ Check has RC branch::
 
     >>> connector._has_rc_branch()
     False
+    
+    >>> connector._current_branch()
+    'master'
 
     >>> connector._has_rc_branch(remote=True)
     False
@@ -118,6 +121,9 @@ Create both, remote and local::
     >>> connector.creatercbranch()
     True
     
+    >>> connector._current_branch()
+    'rc'
+
     >>> connector._has_rc_branch()
     True
 
@@ -140,6 +146,9 @@ Remove local branch and try fetching of remote::
     >>> stdout, stderr, cmd = connector._rungit(['checkout', 'master']) 
     >>> stdout, stderr, cmd = connector._rungit(['branch', '-d', 'rc']) 
     
+    >>> connector._current_branch()
+    'master'
+    
     >>> connector._has_rc_branch()
     False
 
@@ -148,6 +157,9 @@ Remove local branch and try fetching of remote::
 
     >>> connector.creatercbranch()
     True
+
+    >>> connector._current_branch()
+    'rc'
 
     >>> connector._has_rc_branch()
     True
@@ -158,8 +170,22 @@ Merge Tests
 
 ::    
 
-    TODO
-    
+    >>> stdout, stderr, cmd = connector._rungit(['checkout', 'master']) 
+    >>> connector._current_branch()
+    'master'
+
+    >>> with open(DUMMYFILEPATH, 'a') as dummyfile:
+    ...     dummyfile.write('again another line\n')
+    >>> connector.git_wc.status()
+    'dirty'    
+
+    >>> connector.merge()   
+
+    >>> connector._current_branch()
+    'rc'
+
+    >>> connector.git_wc.status()
+    'clean'    
 
 Tag Tests
 ---------
