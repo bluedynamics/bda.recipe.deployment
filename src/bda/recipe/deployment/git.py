@@ -25,7 +25,7 @@ class GitConnector(object):
         if cmd.returncode == 0:
             return stdout, stderr, cmd
         log.error(msg)
-        command = ' '.join(command)
+        command = 'cmd="%s"' % ' '.join(command)
         message = '\n'.join(command, msg, stdout, stderr) 
         raise DeploymentError('Failed command: %s' % message)
         
