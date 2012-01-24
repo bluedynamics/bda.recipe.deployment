@@ -128,19 +128,28 @@ class GitConnector(object):
             raise DeploymentError('Not clean after pre merge commit: %s' %\
                                   self.source['name'])
         if not self._has_rc_branch():
+            # hmm, do we need this?
             self.creatercbranch()
         self._pull()
         self._pull('rc')
         stdout, stderr, cmd = self._rungit(["checkout", "rc"])
         stdout, stderr, cmd = self._rungit(["merge", "master"])
-    
+
+    def _tags(self):
+        stdout, stderr, cmd = self._rungit(["tag"])
+        return [_.strip() for _ in stdout.split('\n')]
     
     def tag(self):
         """Tag package from rc  with version. Use version of
         package ``setup.py``
         """
-        # check if clean, if not commit
+        version = self.package.version
+        if self.status == DIRTY:
+            self.commit(message='bda.recipe.deployment pre tag commit')
         # check if tag for current version exists, if yes raise DeploymentError
+        if version in self._tags():
+            raise DeploymentError('Tag %s already exist for %s.' % 
+                                  (version, self.source['name']))            
         # set tag for current rc branch revision 
         # commit (needed for a tag, need to figure out) 
         # push changes to server  

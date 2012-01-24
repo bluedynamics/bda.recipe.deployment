@@ -192,7 +192,9 @@ Tag Tests
 
 ::    
 
-    TODO
+    >>> connector._tags()
+    []
+    
     
 
 Cleanup
