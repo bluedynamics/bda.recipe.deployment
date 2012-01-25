@@ -150,7 +150,7 @@ class GitConnector(object):
         package ``setup.py``
         """
         version = self.package.version
-        log.info('Tags version %s' % version) 
+        log.info('Tag version %s' % version) 
         if self.status == DIRTY:
             self.commit(message='bda.recipe.deployment pre tag commit')
         if version in self._tags():
