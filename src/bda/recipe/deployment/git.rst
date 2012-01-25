@@ -97,6 +97,15 @@ Commit Tests
     >>> connector.git_wc.status()
     'clean'
 
+    >>> with open(DUMMYFILEPATH, 'a') as dummyfile:
+    ...     dummyfile.write('another line for sinfle file commit\n')
+    >>> connector.git_wc.status()
+    'dirty'
+
+    >>> connector.commit(resource='dummy.txt')    
+    >>> connector.git_wc.status()
+    'clean'
+
 
 Create RC Branch Tests
 ----------------------
