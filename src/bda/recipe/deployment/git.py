@@ -13,14 +13,44 @@ class GitConnector(object):
     
     def __init__(self, package):
         self.package = package
-        self.source = dict()
-        self.source['name'] = package.package
-        self.source['path'] = package.package_path
-        self.source['url'] = package.package_uri
-        self.git_wc = gitWorkingCopyFactory(self.source)
+        
+    @property
+    def rc_source(self):
+        return 'git %s branch=rc' % self.package.package_uri
     
-    def _rungit(self, command, msg=''):
-        cmd = self.git_wc.run_git(command, cwd=self.source['path'])
+    def git_wc(self, context="package"):
+        if context=='package':
+            source = dict(name=self.package.package, 
+                          path=self.package.package_path,
+                          url=self.package.package_uri,
+                          )
+        elif context=='buildout':
+            source = dict(name='buildout', 
+                          path=self.package.buildout_base,
+                          url=None)
+        else: 
+            raise DeploymentError('Commit context "%s" not allowed.' % context)
+        return gitWorkingCopyFactory(source)
+            
+    def _rungit(self, command, msg='', context='package'):
+        """runs git command in a given context
+        
+        command
+            list of strings (paramters) after git 
+            
+        msg
+            error message if command fails
+        
+        context
+            string, one of 'package', 'buildout'
+        
+        """
+        wc = self.git_wc(context=context)
+        if context=='package':
+            cwd = self.package.package_path
+        else:
+            cwd = self.package.buildout_base
+        cmd = wc.run_git(command, cwd=cwd)
         stdout, stderr = cmd.communicate()
         if cmd.returncode == 0:
             return stdout, stderr, cmd
@@ -35,13 +65,30 @@ class GitConnector(object):
         stdout, stderr, cmd = self._rungit(cmd)
         log.info('Pull done.')                        
                        
-    def commit(self, resource='-a', message='bda.recipe.deployment run'):
+    def commit(self, resource='-a', message='bda.recipe.deployment commit'):
         """Commit means here a commit and push in one
         """
+        if self.status == CLEAN:            
+            log.info('Abort commit %s, working directory is clean' % \
+                     (resource == '-a' and 'all' or resource))
+            return
         log.info('Initiate commit  %s' % (resource == '-a' and 'all' or 
                                           resource))
         stdout, stderr, cmd = self._rungit(["commit", resource, '-m', message])
         stdout, stderr, cmd = self._rungit(["push"])
+        log.info('Commit done.')                        
+
+    def commit_buildout(self, resource='-a', 
+                        message='bda.recipe.deployment buildout commit'):
+        if self.status_buildout == CLEAN:            
+            log.info('Abort buildout commit  %s, working directory is clean' % \
+                     (resource == '-a' and 'all' or resource))
+            return
+        log.info('Initiate buildout commit  %s' % (resource == '-a' and 'all' or 
+                                          resource))
+        stdout, stderr, cmd = self._rungit(["commit", resource, '-m', message],
+                                           context='buildout')
+        stdout, stderr, cmd = self._rungit(["push"], context='buildout')
         log.info('Commit done.')                        
 
     def _has_rc_branch(self, remote=False):
@@ -113,11 +160,13 @@ class GitConnector(object):
             log.info('Remote rc branch exists, checkout')
             stdout, stderr, cmd = self._rungit(["checkout", "-b", "rc", 
                                                 "origin/rc"])
+            stdout, stderr, cmd = self._rungit(["checkout", "master"])            
             return True
         else:
             log.info('No remote rc branch, checkout new and push')
             stdout, stderr, cmd = self._rungit(["checkout", "-b", "rc"])
             stdout, stderr, cmd = self._rungit(["push", "-u", "origin", "rc"])
+            stdout, stderr, cmd = self._rungit(["checkout", "master"])            
             return True
     
     def merge(self, resource=None):
@@ -127,7 +176,7 @@ class GitConnector(object):
             self.commit(message='bda.recipe.deployment pre merge commit')
         if self.status == DIRTY:
             raise DeploymentError('Not clean after pre merge commit: %s' %\
-                                  self.source['name'])
+                                  self.package.package)
         if not self._has_rc_branch():
             # hmm, do we need this?
             self.creatercbranch()
@@ -155,7 +204,7 @@ class GitConnector(object):
             self.commit(message='bda.recipe.deployment pre tag commit')
         if version in self._tags():
             raise DeploymentError('Tag %s already exist for %s.' % 
-                                  (version, self.source['name']))            
+                                  (version, self.package.package))            
         self._tag(version, 'version tag set by bda.recipe.deployment') 
         stdout, stderr, cmd = self._rungit(["push", "--tags"])
         log.info('Tagging done')
@@ -163,6 +212,12 @@ class GitConnector(object):
     # proxy method
     @property
     def status(self):
-        return self.git_wc.status()
+        wc = self.git_wc()
+        return wc.status()
+
+    @property
+    def status_buildout(self):
+        wc = self.git_wc(context='buildout')
+        return wc.status()
         
 DeploymentPackage.connectors['git'] = GitConnector

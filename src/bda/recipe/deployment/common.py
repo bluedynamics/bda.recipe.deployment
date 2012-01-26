@@ -38,7 +38,7 @@ class _ConfigMixin(object):
 
 class Config(_ConfigMixin):
     
-    def __init__(self, path, deployment_base=None, distserver=None, packages=None,
+    def __init__(self, path, buildout_base=None, distserver=None, packages=None,
                  sources=None, rc=None, live=None, env=None, sources_dir=None,
                  register=None):
         _ConfigMixin.__init__(self, path)
@@ -60,8 +60,8 @@ class Config(_ConfigMixin):
         if sources is not None:
             for key, val in sources.items():
                 self.config.set('sources', key, val)
-        if deployment_base is not None:
-            self.config.set('settings', 'deployment_base', deployment_base)
+        if buildout_base is not None:
+            self.config.set('settings', 'buildout_base', buildout_base)
         if rc is not None:
             self.config.set('settings', 'rc', rc)
         if live is not None:
@@ -74,8 +74,8 @@ class Config(_ConfigMixin):
             self.config.set('settings', 'register', register)
     
     @property
-    def deployment_base(self):
-        return self.read_option('settings', 'deployment_base')
+    def buildout_base(self):
+        return self.read_option('settings', 'buildout_base')
     
     @property
     def rc(self):
@@ -220,17 +220,26 @@ class DeploymentPackage(object):
         """
         self.connector.commit(resource, message)
     
+    def commit_buildout(self, resource, message):
+        """Commit resource of package with message.
+        
+        @param resource: path to resource. If None, all resources in package
+                         are committed
+        @param message: commit message
+        """
+        self.connector.commit_buildout(resource, message)
+    
     def commit_rc_source(self):
         """Function committing RC source file.
-                """
+        """
         self._check_environment('commit_rc_source', 'dev')
-        self.commit(self.config.rc, '"RC Sources changed"')
+        self.commit_buildout(self.config.rc, '"RC Sources changed"')
     
     def commit_live_versions(self):
-        """Function committing RC source file.
+        """Function committing LIVE source file.
         """
         self._check_environment('commit_live_source', 'rc')
-        self.commit(self.config.rc, '"LIVE Sources changed"')
+        self.commit_buildout(self.config.live, '"LIVE Sources changed"')
     
     def merge(self, resource=None):
         """Merge from trunk to rc.
@@ -299,7 +308,7 @@ class DeploymentPackage(object):
         Function only callable in ``dev`` environment.
         """
         self._check_environment('export_rc', 'dev')
-        sources = RcSourcesCFG(self.config.rc)
+        sources = RcSourcesCFG(self.config.rc)        
         sources.set(self.package, self.connector.rc_source)
         sources()
     
@@ -358,6 +367,10 @@ class DeploymentPackage(object):
     @property
     def register_dist(self):
         return self.config.registerdist
+
+    @property
+    def buildout_base(self):
+        return self.config.buildout_base
     
     @property
     def version(self):

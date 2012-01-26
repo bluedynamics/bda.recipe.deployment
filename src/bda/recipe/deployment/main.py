@@ -270,7 +270,7 @@ if config.check_env('dev'):
     sub_ers_group = sub_ers.add_mutually_exclusive_group()
     sub_ers_group.add_argument('--all', '-a', action='store_true',
                                help='all managed packages')
-    sub_ers_group.add_argument('--package' '-p', nargs='+', help='package(s)')
+    sub_ers_group.add_argument('--package', '-p', nargs='+', help='package(s)')
     sub_ers.set_defaults(func=exportrcsource)
 
 #-------------------------------------------------------------------------------
@@ -299,12 +299,13 @@ def candidate(args):
         _set_version(package, newversion)
         deploymentpackage.commit('setup.py', 'Version Change')
         deploymentpackage.creatercbranch()
-        deploymentpackage.export_version()
+        deploymentpackage.export_rc()
         deploymentpackage.commit_rc_source()
     except DeploymentError, e:
         log.error("Candidate deployment failed: %s" % e)
     except Exception, e:
         log.error("An error occured: %s" % e)
+        raise
 
 if config.check_env('dev'):      
     sub_can = deploy_subparsers.add_parser('candidate', 

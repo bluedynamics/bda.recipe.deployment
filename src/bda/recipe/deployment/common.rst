@@ -67,9 +67,9 @@ Define settings.
 Create new config.
 ::::::::::::::::::
 
-    >>> deployment_base = 'svn https://svn.example.org/somebase'
+    >>> buildout_base = '/home/USERNAME/bdarecipedeploymenttest'
 
-    >>> config = Config(path, deployment_base, distserver, packages, sources, rc,
+    >>> config = Config(path, buildout_base, distserver, packages, sources, rc,
     ...                 live, env, sources_dir)
 
 Query deployment information.
@@ -138,7 +138,7 @@ Query deployment information.
     'foo.bar = bda\n',
     '\n',
     '[settings]\n',
-    'deployment_base = svn https://svn.example.org/somebase\n',
+    'buildout_base = '/home/USERNAME/bdarecipedeploymenttest\n',
     'sources_dir = /tmp/tmp.../sources\n',
     'live = /tmp/tmp.../live-versions.cfg\n',
     'env = dev\n',

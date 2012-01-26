@@ -11,9 +11,7 @@ class Recipe(object):
         self.name = name
         self.options = options
         self.buildout = buildout
-        self.deployment_base = options.get('deployment_base')
-        if not self.deployment_base:
-            raise zc.buildout.UserError(u'deployment_base missing.')
+        self.buildout_base = buildout['buildout']['directory']
         distserver = options.get('distserver')
         if not distserver:
             raise zc.buildout.UserError(u'distserver section missing.')
@@ -66,7 +64,7 @@ class Recipe(object):
             os.remove(path)
         dev_sources =  Config(self.dev)
         sources = dev_sources.as_dict('sources')
-        Config(path, self.deployment_base, self.distserver, self.packages,
+        Config(path, self.buildout_base, self.distserver, self.packages,
                sources, self.rc, self.live, self.env, self.sources_dir,
                self.register)()
         
