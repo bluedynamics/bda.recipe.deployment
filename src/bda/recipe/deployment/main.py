@@ -100,18 +100,18 @@ def info(args):
     cols = ("%s " * 5)
     log.info(cols % (maxlen*'-', 10*'-', 10*'-', 10*'-', 10*'-'))
     log.info(cols % (fill('package'), 
-                     fill('location', 10),                      
-                     fill('release', 10), 
-                     fill('svn (%s)' % config.env, 10),
-                     fill('rc-branch', 10)))
+                     fill('repo (%s)' % config.env, 10),
+                     fill('live', 10), 
+                     fill('rc-branch', 10),
+                     fill('location', 10),))
     log.info(cols % (maxlen*'-', 10*'-', 10*'-', 10*'-', 10*'-'))
     for package in sorted(config.as_dict('packages').keys(), key=str.lower):
         dp = DeploymentPackage(config, package)        
         log.info(cols % (fill(package), 
-                         fill(config.package(package), 10),
-                         fill(dp.live_version or 'not set', 10),
                          fill(dp.version, 10),
-                         fill(dp.rc_source and 'yes' or 'no', 10)))
+                         fill(dp.live_version or 'not set', 10),
+                         fill(dp.rc_source and 'yes' or 'no', 10),
+                         fill(config.package(package), 10),))
     log.info(cols % (maxlen*'-', 10*'-', 10*'-', 10*'-', 10*'-'))
 
 sub_inf = deploy_subparsers.add_parser('info', 
