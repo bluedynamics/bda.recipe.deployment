@@ -30,7 +30,7 @@ class Recipe(object):
             raise zc.buildout.UserError(u'No packages defined.')
         self.packages = dict()
         for package in packages:
-            key, val = package.split(' ')
+            key, val = package.split()
             self.packages[key] = val
         base_path = buildout['buildout']['directory']
         self.rc = options.get('rc')
