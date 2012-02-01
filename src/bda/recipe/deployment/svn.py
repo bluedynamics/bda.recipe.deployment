@@ -37,6 +37,9 @@ class SVNConnector(SVNWorkingCopy):
         log.info(msg)
         stdout, stderr, returncode = self._svn_communicate(args, url,
                                                            **kwargs)
+        
+    def commit_buildout(self, resource, message):
+        self.commit(resource, message)
     
     def merge(self, resource=None):
         """

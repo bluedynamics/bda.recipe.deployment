@@ -74,7 +74,7 @@ Clone Repo
 
 So lets see if we can clone this, ak a checkout in the mr.developer world::
 
-    >>> connector.git_wc.git_checkout()
+    >>> connector.git_wc().git_checkout()
     >>> DUMMYFILEPATH = os.path.join(connector.source['path'], 'dummy.txt')
     >>> os.path.exists(DUMMYFILEPATH)
     True
@@ -85,25 +85,25 @@ Commit Tests
 
 ::
 
-    >>> connector.git_wc.status()
+    >>> connector.status()
     'clean'
 
     >>> with open(DUMMYFILEPATH, 'a') as dummyfile:
     ...     dummyfile.write('another line\n')
-    >>> connector.git_wc.status()
+    >>> connector.status()
     'dirty'
 
     >>> connector.commit()    
-    >>> connector.git_wc.status()
+    >>> connector.status()
     'clean'
 
     >>> with open(DUMMYFILEPATH, 'a') as dummyfile:
     ...     dummyfile.write('another line for sinfle file commit\n')
-    >>> connector.git_wc.status()
+    >>> connector.status()
     'dirty'
 
     >>> connector.commit(resource='dummy.txt')    
-    >>> connector.git_wc.status()
+    >>> connector.status()
     'clean'
 
 
@@ -136,7 +136,7 @@ Create both, remote and local::
     >>> connector._has_rc_branch()
     True
 
-    >>> connector.git_wc.status()
+    >>> connector.status()
     'clean'    
 
     >>> [sorted(_.items()) for _ in connector._get_branches()]
@@ -185,7 +185,7 @@ Merge Tests
 
     >>> with open(DUMMYFILEPATH, 'a') as dummyfile:
     ...     dummyfile.write('again another line\n')
-    >>> connector.git_wc.status()
+    >>> connector.status()
     'dirty'    
 
     >>> connector.merge()   
@@ -193,7 +193,7 @@ Merge Tests
     >>> connector._current_branch()
     'rc'
 
-    >>> connector.git_wc.status()
+    >>> connector.status()
     'clean'    
 
 Tag Tests
@@ -215,7 +215,7 @@ Tag Tests
     >>> sorted(connector._tags())
     ['unversioned', 'vTest']
 
-    >>> connector.git_wc.status()
+    >>> connector.status()
     'clean'    
     
 
