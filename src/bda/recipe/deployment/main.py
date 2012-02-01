@@ -49,13 +49,12 @@ def repopasswd(args):
     pwdmgr = PWDManager(args.servername)
     pwdmgr.set()
 
-if config.check_env('rc'):    
-    sub_rp = deploy_subparsers.add_parser('repopasswd', 
-                                   help='Set user and password for server')
-    sub_rp.add_argument('distserver', nargs=1,
-                       choices=[k for k,v in config.config.items('distserver')],
-                       help='name of the distserver')
-    sub_rp.set_defaults(func=repopasswd)
+sub_rp = deploy_subparsers.add_parser('repopasswd', 
+                               help='Set user and password for server')
+sub_rp.add_argument('distserver', nargs=1,
+                   choices=[k for k,v in config.config.items('distserver')],
+                   help='name of the distserver')
+sub_rp.set_defaults(func=repopasswd)
 
 #-------------------------------------------------------------------------------
 
@@ -180,7 +179,7 @@ def _creatercbranch(all, packages):
 def creatercbranch(args):
     return _creatercbranch(args.all, args.package)
     
-if config.check_env('dev'):      
+if config.check_env('dev'):
     sub_crc = single_subparsers.add_parser('creatercbranch', 
                                     help='Create RC branch for one or more '
                                          'or all managed packages.')
@@ -195,6 +194,7 @@ if config.check_env('dev'):
 def tag(args):
     log.info("Tag package")
     deploymentpackage = DeploymentPackage(config, args.package[0])
+    #XXX check env of package match
     try:
         deploymentpackage.tag()
     except DeploymentError, e:
@@ -203,17 +203,16 @@ def tag(args):
     except Exception, e:
         log.error("An error occured: %s" % e)
 
-if config.check_env('rc'):      
-    sub_tag = single_subparsers.add_parser('tag', help='Tag a package')
-    sub_tag.add_argument('package', nargs=1, help='name of package')
-    sub_tag.set_defaults(func=tag)
+sub_tag = single_subparsers.add_parser('tag', help='Tag a package')
+sub_tag.add_argument('package', nargs=1, help='name of package')
+sub_tag.set_defaults(func=tag)
 
 #-------------------------------------------------------------------------------
 
 def release(args):
     log.info("Release package")
     deploymentpackage = DeploymentPackage(config, args.package[0])
-    try:
+    #XXX check env of package match    try:
         deploymentpackage.release()
     except DeploymentError, e:
         log.error("Releasing failed: %s" % e)
@@ -221,10 +220,9 @@ def release(args):
     except Exception, e:
         log.error("An error occured: %s" % e)
 
-if config.check_env('rc'):      
-    sub_rel = single_subparsers.add_parser('release', help='Release package')
-    sub_rel.add_argument('package', nargs=1, help='name of package')
-    sub_rel.set_defaults(func=release)
+sub_rel = single_subparsers.add_parser('release', help='Release package')
+sub_rel.add_argument('package', nargs=1, help='name of package')
+sub_rel.set_defaults(func=release)
 
 #-------------------------------------------------------------------------------
 
@@ -252,6 +250,7 @@ def _exportrcsource(_all, packages):
         packages = config.as_dict('packages').keys()
     log.info("Export rc source")
     for package in packages:        
+        #XXX check env of package match
         deploymentpackage = DeploymentPackage(config, package)
         try:
             deploymentpackage.export_rc()
@@ -293,6 +292,7 @@ def candidate(args):
     except DeploymentError, e:
         log.error("Cannot deploy candidate: %s" % e)
         return
+    #XXX check env of package match
     log.info("Complete deployment of release candidate %s with version %s" % 
              (package, newversion))
     try:
@@ -327,6 +327,7 @@ def fullrelease(args):
     """
     package = args.package[0]
     deploymentpackage = DeploymentPackage(config, package)
+    #XXX check env of package match, chnage following
     try:
         deploymentpackage._check_environment('deploycandidate', 'rc')
     except DeploymentError, e:
@@ -359,8 +360,7 @@ def fullrelease(args):
     except Exception, e:
         log.error("An error occured: %s" % e)
         
-if config.check_env('rc'):      
-    sub_rls = deploy_subparsers.add_parser('release', 
-                                    help='Deploy release to package index')
-    sub_rls.add_argument('package', nargs=1, help='name of package')
-    sub_rls.set_defaults(func=fullrelease)
+sub_rls = deploy_subparsers.add_parser('release', 
+                                help='Deploy release to package index')
+sub_rls.add_argument('package', nargs=1, help='name of package')
+sub_rls.set_defaults(func=fullrelease)
