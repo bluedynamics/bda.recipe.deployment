@@ -143,7 +143,7 @@ class RcSourcesCFG(_ConfigMixin):
     def get(self, package):
         return self.read_option('sources', package)        
 
-class LiveVersionsCFG(_ConfigMixin):
+class VersionsCFG(_ConfigMixin):
     
     def __init__(self, path):
         _ConfigMixin.__init__(self, path)
@@ -346,19 +346,26 @@ class DeploymentPackage(object):
         return sources.get(self.package)
     
     def export_version(self):
-        """Export current resource version to configured live versions config.
-        
-        Function only callable in ``rc`` environment.
+        """Export current resource version to configured live/rc versions 
+        config.
         """
-        versions = LiveVersionsCFG(self.config.live_versions)
+        if self.check_env('dev'):
+            versions = VersionsCFG(self.config.rc_versions)
+            versions.set(self.package, self.version)
+            versions()
+        versions = VersionsCFG(self.config.live_versions)
         versions.set(self.package, self.version)
         versions()
         
     @property
-    def live_version(self):
-        versions = LiveVersionsCFG(self.config.live_versions)
+    def rc_version(self):
+        versions = VersionsCFG(self.config.rc_versions)
         return versions.read_option('versions', self.package)
-        
+
+    @property
+    def live_version(self):
+        versions = VersionsCFG(self.config.live_versions)
+        return versions.read_option('versions', self.package)        
     
     @property
     def _source(self):

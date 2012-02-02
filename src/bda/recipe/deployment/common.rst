@@ -197,10 +197,10 @@ Check ``RcSourcesCFG`` object::
 
     >>> os.remove(config.rc_sources)
 
-Check ``LiveVersionsCFG`` object::
+Check ``VersionsCFG`` object::
 
-    >>> from bda.recipe.deployment.common import LiveVersionsCFG
-    >>> versions = LiveVersionsCFG(config.live_versions)
+    >>> from bda.recipe.deployment.common import VersionsCFG
+    >>> versions = VersionsCFG(config.live_versions)
     >>> versions.set('foo.bar', '1.1')
     >>> versions()
     >>> file = open(config.live_versions)
