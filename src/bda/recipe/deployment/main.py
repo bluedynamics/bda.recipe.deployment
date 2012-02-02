@@ -329,11 +329,6 @@ def fullrelease(args):
     package = args.package[0]
     deploymentpackage = DeploymentPackage(config, package)
     deploymentpackage.check_env(self.config.env)
-    try:
-        deploymentpackage._check_environment('deploycandidate', 'rc')
-    except DeploymentError, e:
-        log.error("Cannot deploy release: %s" % e)
-        return 
     log.info("Complete deployment of final package %s" % package)
     try:
         deploymentpackage.tag()

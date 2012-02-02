@@ -254,13 +254,11 @@ class DeploymentPackage(object):
     def commit_rc_source(self):
         """Function committing RC source file.
         """
-        self._check_environment('commit_rc_source', 'dev')
         self.commit_buildout(self.config.rc, '"RC Sources changed"')
     
     def commit_live_versions(self):
         """Function committing LIVE source file.
         """
-        self._check_environment('commit_live_source', 'rc')
         self.commit_buildout(self.config.live, '"LIVE Sources changed"')
     
     def merge(self, resource=None):
@@ -273,13 +271,11 @@ class DeploymentPackage(object):
         @param resource: path to resource. If None, all resources in package
                          are merged
         """
-        self._check_environment('merge', 'rc')
         self.connector.merge(resource)
     
     def creatercbranch(self):
         """Create RC branch for package.
         """
-        self._check_environment('creatercbranch', 'dev')
         self.connector.creatercbranch()        
     
     def tag(self):
@@ -291,7 +287,6 @@ class DeploymentPackage(object):
         Raise ``DeploymentError`` if tag already exists or if called in
         wrong environment.
         """
-        self._check_environment('tag', 'rc')
         self.connector.tag()
     
     def release(self):
@@ -303,7 +298,6 @@ class DeploymentPackage(object):
         
         XXX: make me thread safe.
         """
-        self._check_environment('release', 'rc')
         pwdmgr = PWDManager(self.config.package(self.package))
         username, password = pwdmgr.get()
         package_path = self.package_path
@@ -329,7 +323,6 @@ class DeploymentPackage(object):
         
         Function only callable in ``dev`` environment.
         """
-        self._check_environment('export_rc', 'dev')
         sources = RcSourcesCFG(self.config.rc)        
         sources.set(self.package, self.connector.rc_source)
         sources()
@@ -344,7 +337,6 @@ class DeploymentPackage(object):
         
         Function only callable in ``rc`` environment.
         """
-        self._check_environment('export_version', 'rc')
         versions = LiveVersionsCFG(self.config.live)
         versions.set(self.package, self.version)
         versions()
@@ -354,12 +346,6 @@ class DeploymentPackage(object):
         versions = LiveVersionsCFG(self.config.live)
         return versions.read_option('versions', self.package)
         
-    
-    def _check_environment(self, operation, env):
-        if self.config.check_env(env):
-            return
-        msg = "Wrong environment for '%s' operation: '%s'" % (operation, env)
-        raise DeploymentError(msg)
     
     @property
     def _source(self):
