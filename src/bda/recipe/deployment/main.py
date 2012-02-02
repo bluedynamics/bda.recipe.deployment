@@ -105,11 +105,13 @@ def info(args):
                      fill('location', 10),))
     log.info(cols % (maxlen*'-', 10*'-', 10*'-', 10*'-', 10*'-'))
     for package in sorted(config.as_dict('packages').keys(), key=str.lower):
-        dp = DeploymentPackage(config, package)        
+        dp = DeploymentPackage(config, package)     
+        p_env = dp.package_options['env']
+        rc = dp.rc_source and 'yes' or (p_env=='rc' and p_env or '---')
         log.info(cols % (fill(package), 
                          fill(dp.version, 10),
                          fill(dp.live_version or 'not set', 10),
-                         fill(dp.rc_source and 'yes' or 'no', 10),
+                         fill(rc, 10),
                          fill(config.package(package), 10),))
     log.info(cols % (maxlen*'-', 10*'-', 10*'-', 10*'-', 10*'-'))
 
@@ -168,6 +170,7 @@ def _creatercbranch(all, packages):
         packages = config.as_dict('packages').keys()
     for package in packages:
         deploymentpackage = DeploymentPackage(config, package)
+        deploymentpackage.check_env("rc")
         try:
             deploymentpackage.creatercbranch()
         except DeploymentError, e:
@@ -212,7 +215,8 @@ sub_tag.set_defaults(func=tag)
 def release(args):
     log.info("Release package")
     deploymentpackage = DeploymentPackage(config, args.package[0])
-    #XXX check env of package match    try:
+    #XXX check env of package match    
+    try:
         deploymentpackage.release()
     except DeploymentError, e:
         log.error("Releasing failed: %s" % e)

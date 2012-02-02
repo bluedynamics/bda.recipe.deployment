@@ -122,8 +122,8 @@ class Config(_ConfigMixin):
         return self.read_option('sources', name)
     
     def check_env(self, env):
-        return self.env in ['all', env]       
-
+        return self.env in ['all', env]
+        
 class RcSourcesCFG(_ConfigMixin):
     
     def __init__(self, path):
@@ -225,6 +225,13 @@ class DeploymentPackage(object):
     def __init__(self, config, package):
         self.config = config
         self.package = package
+        
+    def check_env(self, target_env):
+        if self.package_options['env'] == target_env:
+            return True
+        raise DeploymentError(
+                "action for package %s for target env %s is not allowed." % 
+                (self.package, target_env))
     
     def commit(self, resource, message):
         """Commit resource of package with message.
@@ -374,6 +381,10 @@ class DeploymentPackage(object):
     @property
     def package_path(self):
         return os.path.join(self.config.sources_dir, self.package)
+
+    @property
+    def package_options(self):
+        return self.config.package_options(self.package)
     
     @property
     def dist_server(self):
