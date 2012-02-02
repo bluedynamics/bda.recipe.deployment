@@ -76,6 +76,7 @@ class GitConnector(object):
         log.info('Initiate commit  %s' % (resource == '-a' and 'all' or 
                                           resource))
         if resource != '-a':
+            import pdb;pdb.set_trace()
             stdout, stderr, cmd = self._rungit(["add", resource])
         message = '"%s"' % message
         stdout, stderr, cmd = self._rungit(["commit", resource, '-m', message])
