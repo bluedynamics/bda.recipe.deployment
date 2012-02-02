@@ -130,28 +130,25 @@ Query deployment information::
     >>> file = open(path)
     >>> lines = [l for l in file.readlines()]
     >>> file.close()
-    >>> lines
-    ['[sources]\n',
-    'bar.baz = svn https://svn.plone.org/svn/collective/bar.baz/trunk\n',
-    'foo.bar = svn https://svn.plone.org/svn/collective/foo.bar/trunk\n',
-    '\n',
-    '[distserver]\n',
-    'bda = http://bda.org\n',
-    'pypi = http://pypi.org\n',
-    '\n',
-    '[packages]\n',
-    'bar.baz = pypi\n',
-    'foo.bar = bda env=dev\n',
-    '\n',
-    '[settings]\n',
-    'buildout_base = /home/USERNAME/bdarecipedeploymenttest\n',
-    'live = /.../live-versions.cfg\n',
-    'sources_dir = /.../sources\n',
-    'env = dev\n',
-    'rc = /.../rc-sources.cfg\n',
-    '\n']
-
-
+    >>> sorted(lines)
+    ['\n', '\n', '\n', '\n', 
+    '[distserver]\n', 
+    '[packages]\n', 
+    '[settings]\n', 
+    '[sources]\n', 
+    'bar.baz = pypi\n', 
+    'bar.baz = svn https://svn.plone.org/svn/collective/bar.baz/trunk\n', 
+    'bda = http://bda.org\n', 
+    'buildout_base = /home/USERNAME/bdarecipedeploymenttest\n', 
+    'env = dev\n', 
+    'foo.bar = bda env=dev\n', 
+    'foo.bar = svn https://svn.plone.org/svn/collective/foo.bar/trunk\n', 
+    'live_versions = /.../live-versions.cfg\n', 
+    'pypi = http://pypi.org\n', 
+    'rc_sources = /.../rc-sources.cfg\n', 
+    'rc_versions = /.../rc-versions.cfg\n', 
+    'sources_dir = /.../sources\n']
+    
 Create config with existing content::
 
     >>> config = Config(path)
@@ -186,11 +183,11 @@ Check ``PackageVersion`` object::
 Check ``RcSourcesCFG`` object::
 
     >>> from bda.recipe.deployment.common import RcSourcesCFG
-    >>> rcsources = RcSourcesCFG(config.rc)
+    >>> rcsources = RcSourcesCFG(config.rc_sources)
     >>> rcsources.set('foo.bar',
     ...               'svn https://example.com/svn/foo.bar/branches/rc')
     >>> rcsources()
-    >>> file = open(config.rc)
+    >>> file = open(config.rc_sources)
     >>> lines = [l for l in file.readlines()]
     >>> file.close()
     >>> lines
@@ -198,15 +195,15 @@ Check ``RcSourcesCFG`` object::
     'foo.bar = svn https://example.com/svn/foo.bar/branches/rc\n',
     '\n']
 
-    >>> os.remove(config.rc)
+    >>> os.remove(config.rc_sources)
 
 Check ``LiveVersionsCFG`` object::
 
     >>> from bda.recipe.deployment.common import LiveVersionsCFG
-    >>> versions = LiveVersionsCFG(config.live)
+    >>> versions = LiveVersionsCFG(config.live_versions)
     >>> versions.set('foo.bar', '1.1')
     >>> versions()
-    >>> file = open(config.live)
+    >>> file = open(config.live_versions)
     >>> lines = [l for l in file.readlines()]
     >>> file.close()
     >>> lines
@@ -214,7 +211,7 @@ Check ``LiveVersionsCFG`` object::
     'foo.bar = 1.1\n',
     '\n']
 
-    >>> os.remove(config.live)
+    >>> os.remove(config.live_versions)
 
 Check ``ReleaseCFG`` object::
 

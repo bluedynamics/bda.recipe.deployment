@@ -63,11 +63,11 @@ class Config(_ConfigMixin):
         if buildout_base is not None:
             self.config.set('settings', 'buildout_base', buildout_base)
         if rcsources is not None:       
-            self.config.set('settings', 'rc-sources', rcsources)
+            self.config.set('settings', 'rc_sources', rcsources)
         if rcversions is not None:
-            self.config.set('settings', 'rc-versions', rcversions)
+            self.config.set('settings', 'rc_versions', rcversions)
         if live is not None:
-            self.config.set('settings', 'live', live)
+            self.config.set('settings', 'live_versions', live)
         if env is not None:
             self.config.set('settings', 'env', env)
         if sources_dir is not None:
@@ -80,12 +80,16 @@ class Config(_ConfigMixin):
         return self.read_option('settings', 'buildout_base')
     
     @property
-    def rc(self):
-        return self.read_option('settings', 'rc')
+    def rc_versions(self):
+        return self.read_option('settings', 'rc_versions')
+
+    @property
+    def rc_sources(self):
+        return self.read_option('settings', 'rc_sources')
     
     @property
-    def live(self):
-        return self.read_option('settings', 'live')
+    def live_versions(self):
+        return self.read_option('settings', 'live_versions')
     
     @property
     def env(self):
@@ -256,12 +260,12 @@ class DeploymentPackage(object):
     def commit_rc_source(self):
         """Function committing RC source file.
         """
-        self.commit_buildout(self.config.rc, '"RC Sources changed"')
+        self.commit_buildout(self.config.rc_sources, '"RC Sources changed"')
     
     def commit_live_versions(self):
         """Function committing LIVE source file.
         """
-        self.commit_buildout(self.config.live, '"LIVE Sources changed"')
+        self.commit_buildout(self.config.live_versions, '"LIVE Sources changed"')
     
     def merge(self, resource=None):
         """Merge from trunk to rc.
@@ -332,13 +336,13 @@ class DeploymentPackage(object):
         
         Function only callable in ``dev`` environment.
         """
-        sources = RcSourcesCFG(self.config.rc)        
+        sources = RcSourcesCFG(self.config.rc_sources)        
         sources.set(self.package, self.connector.rc_source)
         sources()
     
     @property
     def rc_source(self):
-        sources = RcSourcesCFG(self.config.rc)
+        sources = RcSourcesCFG(self.config.rc_sources)
         return sources.get(self.package)
     
     def export_version(self):
@@ -346,13 +350,13 @@ class DeploymentPackage(object):
         
         Function only callable in ``rc`` environment.
         """
-        versions = LiveVersionsCFG(self.config.live)
+        versions = LiveVersionsCFG(self.config.live_versions)
         versions.set(self.package, self.version)
         versions()
         
     @property
     def live_version(self):
-        versions = LiveVersionsCFG(self.config.live)
+        versions = LiveVersionsCFG(self.config.live_versions)
         return versions.read_option('versions', self.package)
         
     

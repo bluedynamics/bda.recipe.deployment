@@ -33,21 +33,31 @@ class Recipe(object):
             key, val = package.split(None, 1)
             self.packages[key] = val
         base_path = buildout['buildout']['directory']
-        self.rc = options.get('rc')
-        if not self.rc:
-            raise zc.buildout.UserError(u'No RC sources config defined.')
-        if not self.rc.startswith(base_path):
-            rc = os.path.join(base_path, self.rc)
-        self.dev = options.get('dev')
-        if not self.dev:
+        
+        self.dev_sources = options.get('dev_sources')
+        if not self.dev_sources:
             raise zc.buildout.UserError(u'No DEV sources config defined.')
-        if not self.dev.startswith(base_path):
-            self.dev = os.path.join(base_path, self.dev)
-        self.live = options.get('live')
-        if not self.live:
+        if not self.dev_sources.startswith(base_path):
+            self.dev = os.path.join(base_path, self.dev_sources)
+        
+        self.rc_sources = options.get('rc_sources')
+        if not self.rc_sources:
+            raise zc.buildout.UserError(u'No RC sources config defined.')
+        if not self.rc_sources.startswith(base_path):
+            self.rc_sources = os.path.join(base_path, self.rc_sources)
+            
+        self.rc_versions = options.get('rc_versions')
+        if not self.rc_versions:
+            raise zc.buildout.UserError(u'No RC versions config defined.')
+        if not self.rc_versions.startswith(base_path):
+            rc = os.path.join(base_path, self.rc_versions)
+        
+        self.live_versions = options.get('live_versions')
+        if not self.live_versions:
             raise zc.buildout.UserError(u'No Live versions config defined.')
-        if not self.live.startswith(base_path):
-            self.live = os.path.join(base_path, self.live)
+        if not self.live_versions.startswith(base_path):
+            self.live_versions = os.path.join(base_path, self.live_versions)
+        
         self.register = options.get('register', '')
         self.env = options.get('env')
         if not self.env in ['dev', 'rc', 'all']:
@@ -62,11 +72,11 @@ class Recipe(object):
                             '.bda.recipe.deployment.cfg')
         if os.path.exists(path):
             os.remove(path)
-        dev_sources =  Config(self.dev)
+        dev_sources =  Config(self.dev_sources)
         sources = dev_sources.as_dict('sources')
         Config(path, self.buildout_base, self.distserver, self.packages,
-               sources, self.rc, self.live, self.env, self.sources_dir,
-               self.register)()
+               sources, self.rc_sources, self.rc_versions, self.live_versions, 
+               self.env, self.sources_dir, self.register)()
         
     def update(self):
         return self.install()
