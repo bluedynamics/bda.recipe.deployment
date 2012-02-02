@@ -76,7 +76,6 @@ class GitConnector(object):
         log.info('Initiate commit  %s' % (resource == '-a' and 'all' or 
                                           resource))
         if resource != '-a':
-            import pdb;pdb.set_trace()
             stdout, stderr, cmd = self._rungit(["add", resource])
         message = '"%s"' % message
         stdout, stderr, cmd = self._rungit(["commit", resource, '-m', message])
@@ -91,6 +90,9 @@ class GitConnector(object):
             return
         log.info('Initiate buildout commit  %s' % (resource == '-a' and 'all' or 
                                           resource))
+        if resource != '-a':
+            import pdb;pdb.set_trace()
+            stdout, stderr, cmd = self._rungit(["add", resource])
         stdout, stderr, cmd = self._rungit(["commit", resource, '-m', message],
                                            context='buildout')
         stdout, stderr, cmd = self._rungit(["push"], context='buildout')
