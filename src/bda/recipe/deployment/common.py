@@ -100,8 +100,23 @@ class Config(_ConfigMixin):
     def distserver(self, name):
         return self.read_option('distserver', name)    
     
+    def _package_split(self, pkgstr):
+        if not pkgstr:
+            return None, {}
+        parts = pkgstr.strip().split()
+        options = dict()
+        options.setdefault('env', 'rc')
+        if len(parts) > 1:
+            for optionstr in parts[1].split(','):
+                key, value = optionstr.split('=')
+                options[key] = value
+        return parts[0], options
+    
     def package(self, name):
-        return self.read_option('packages', name)
+        return self._package_split(self.read_option('packages', name))[0]
+
+    def package_options(self, name):
+        return self._package_split(self.read_option('packages', name))[1]
     
     def source(self, name):
         return self.read_option('sources', name)

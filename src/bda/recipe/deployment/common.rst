@@ -52,7 +52,7 @@ Define settings.
     ...     'pypi': 'http://pypi.org'
     ... }
     >>> packages = {
-    ...     'foo.bar': 'bda',
+    ...     'foo.bar': 'bda env=dev',
     ...     'bar.baz': 'pypi',
     ... }
     >>> sources = {
@@ -98,8 +98,14 @@ Query deployment information.
     >>> config.package('foo.bar')
     'bda'
 
+    >>> config.package_options('foo.bar')
+    {'env': 'dev'}
+
     >>> config.package('bar.baz')
     'pypi'
+
+    >>> config.package_options('bar.baz')
+    {'env': 'rc'}
 
     >>> config.package('inexistent')
 
@@ -113,7 +119,7 @@ Query deployment information.
     {'bda': 'http://bda.org', 'pypi': 'http://pypi.org'}
 
     >>> config.as_dict('packages')
-    {'bar.baz': 'pypi', 'foo.bar': 'bda'}
+    {'bar.baz': 'pypi', 'foo.bar': 'bda env=dev'}
 
     >>> config.as_dict('sources')
     {'bar.baz': 'svn https://svn.plone.org/bar.baz/trunk',
@@ -129,20 +135,24 @@ Query deployment information.
     >>> lines
     ['[sources]\n',
     'bar.baz = svn https://svn.plone.org/bar.baz/trunk\n',
-    'foo.bar = svn https://svn.plone.org/foo.bar/trunk\n', '\n',
+    'foo.bar = svn https://svn.plone.org/foo.bar/trunk\n',
+    '\n',
     '[distserver]\n',
     'bda = http://bda.org\n',
     'pypi = http://pypi.org\n',
-    '\n', '[packages]\n',
+    '\n',
+    '[packages]\n',
     'bar.baz = pypi\n',
-    'foo.bar = bda\n',
+    'foo.bar = bda env=dev\n',
     '\n',
     '[settings]\n',
-    'buildout_base = '/home/USERNAME/bdarecipedeploymenttest\n',
-    'sources_dir = /tmp/tmp.../sources\n',
-    'live = /tmp/tmp.../live-versions.cfg\n',
+    'buildout_base = /home/USERNAME/bdarecipedeploymenttest\n',
+    'live = /.../live-versions.cfg\n',
+    'sources_dir = /.../sources\n',
     'env = dev\n',
-    'rc = /tmp/tmp.../rc-sources.cfg\n', '\n']
+    'rc = /.../rc-sources.cfg\n',
+    '\n']
+
 
 Create config with existing content.
 ::::::::::::::::::::::::::::::::::::

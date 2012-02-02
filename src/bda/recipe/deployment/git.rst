@@ -72,10 +72,10 @@ Prepare connector
 Clone Repo
 ::::::::::
 
-So lets see if we can clone this, ak a checkout in the mr.developer world::
+So lets see if we can clone this, aka checkout in the mr.developer world::
 
     >>> connector.git_wc().git_checkout()
-    >>> DUMMYFILEPATH = os.path.join(connector.source['path'], 'dummy.txt')
+    >>> DUMMYFILEPATH = os.path.join(connector.source()['path'], 'dummy.txt')
     >>> os.path.exists(DUMMYFILEPATH)
     True
         
@@ -85,25 +85,25 @@ Commit Tests
 
 ::
 
-    >>> connector.status()
+    >>> connector.status
     'clean'
 
     >>> with open(DUMMYFILEPATH, 'a') as dummyfile:
     ...     dummyfile.write('another line\n')
-    >>> connector.status()
+    >>> connector.status
     'dirty'
 
     >>> connector.commit()    
-    >>> connector.status()
+    >>> connector.status
     'clean'
 
     >>> with open(DUMMYFILEPATH, 'a') as dummyfile:
     ...     dummyfile.write('another line for sinfle file commit\n')
-    >>> connector.status()
+    >>> connector.status
     'dirty'
 
     >>> connector.commit(resource='dummy.txt')    
-    >>> connector.status()
+    >>> connector.status
     'clean'
 
 
@@ -131,17 +131,17 @@ Create both, remote and local::
     True
     
     >>> connector._current_branch()
-    'rc'
+    'master'
 
     >>> connector._has_rc_branch()
     True
 
-    >>> connector.status()
+    >>> connector.status
     'clean'    
 
     >>> [sorted(_.items()) for _ in connector._get_branches()]
-    [[('alias', None), ('branch', 'master'), ('current', False), ('remote', None)], 
-    [('alias', None), ('branch', 'rc'), ('current', True), ('remote', None)], 
+    [[('alias', None), ('branch', 'master'), ('current', True), ('remote', None)], 
+    [('alias', None), ('branch', 'rc'), ('current', False), ('remote', None)], 
     [('alias', 'origin/HEAD'), ('branch', 'master'), ('current', False), ('remote', 'origin')], 
     [('alias', None), ('branch', 'rc'), ('current', False), ('remote', 'origin')]]
 
@@ -168,7 +168,7 @@ Remove local branch and try fetching of remote::
     True
 
     >>> connector._current_branch()
-    'rc'
+    'master'
 
     >>> connector._has_rc_branch()
     True
@@ -185,7 +185,7 @@ Merge Tests
 
     >>> with open(DUMMYFILEPATH, 'a') as dummyfile:
     ...     dummyfile.write('again another line\n')
-    >>> connector.status()
+    >>> connector.status
     'dirty'    
 
     >>> connector.merge()   
@@ -193,7 +193,7 @@ Merge Tests
     >>> connector._current_branch()
     'rc'
 
-    >>> connector.status()
+    >>> connector.status
     'clean'    
 
 Tag Tests
@@ -215,7 +215,7 @@ Tag Tests
     >>> sorted(connector._tags())
     ['unversioned', 'vTest']
 
-    >>> connector.status()
+    >>> connector.status
     'clean'    
     
 

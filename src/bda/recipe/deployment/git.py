@@ -18,19 +18,20 @@ class GitConnector(object):
     def rc_source(self):
         return 'git %s branch=rc' % self.package.package_uri
     
-    def git_wc(self, context="package"):
+    def source(self, context="package"):
         if context=='package':
-            source = dict(name=self.package.package, 
-                          path=self.package.package_path,
-                          url=self.package.package_uri,
-                          )
+            return dict(name=self.package.package, 
+                        path=self.package.package_path,
+                        url=self.package.package_uri)
         elif context=='buildout':
-            source = dict(name='buildout', 
-                          path=self.package.buildout_base,
-                          url=None)
+            return dict(name='buildout', 
+                        path=self.package.buildout_base,
+                        url=None)
         else: 
             raise DeploymentError('Commit context "%s" not allowed.' % context)
-        return gitWorkingCopyFactory(source)
+    
+    def git_wc(self, context="package"):
+        return gitWorkingCopyFactory(self.source(context=context))
             
     def _rungit(self, command, msg='', context='package'):
         """runs git command in a given context
