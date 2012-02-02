@@ -236,8 +236,8 @@ class DeploymentPackage(object):
         if self.package_options['env'] == target_env:
             return True
         raise DeploymentError(
-                "action for package %s for target env %s is not allowed." % 
-                (self.package, target_env))
+                "action for package '%s' for target env '%s' is not allowed (allow=%s)." % 
+                (self.package, target_env, self.package_options['env']))
     
     def commit(self, resource, message):
         """Commit resource of package with message.
@@ -262,10 +262,12 @@ class DeploymentPackage(object):
         """
         self.commit_buildout(self.config.rc_sources, '"RC Sources changed"')
     
-    def commit_live_versions(self):
-        """Function committing LIVE source file.
+    def commit_versions(self):
+        """Function committing LIVE/RC source file.
         """
-        self.commit_buildout(self.config.live_versions, '"LIVE Sources changed"')
+        if self.check_env('dev'):
+            self.commit_buildout(self.config.rc_versions, '"RC versions updated"')
+        self.commit_buildout(self.config.live_versions, '"LIVE versions updated"')
     
     def merge(self, resource=None):
         """Merge from trunk to rc.

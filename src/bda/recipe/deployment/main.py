@@ -352,7 +352,7 @@ def fullrelease(args):
     except Exception, e:
         log.error("An error occured: %s" % e)
     try:
-        deploymentpackage.commit_live_versions()
+        deploymentpackage.commit_versions()
     except Exception, e:
         log.error("An error occured: %s" % e)
 
