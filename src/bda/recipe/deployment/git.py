@@ -75,6 +75,9 @@ class GitConnector(object):
             return
         log.info('Initiate commit  %s' % (resource == '-a' and 'all' or 
                                           resource))
+        if resource != '-a':
+            stdout, stderr, cmd = self._rungit(["add", resource])
+        stdout, stderr, cmd = self._rungit(["commit", resource, '-m', message])
         stdout, stderr, cmd = self._rungit(["commit", resource, '-m', message])
         stdout, stderr, cmd = self._rungit(["push"])
         log.info('Commit done.')                        
