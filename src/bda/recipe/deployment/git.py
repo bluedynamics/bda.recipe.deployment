@@ -56,7 +56,7 @@ class GitConnector(object):
         if cmd.returncode == 0:
             return stdout, stderr, cmd
         log.error(msg)
-        command = 'git %s' % ' '.join(command)
+        command = '%s' % ' '.join(command)
         message = '\n'.join([command, msg, stdout, stderr]) 
         raise DeploymentError('Failed command: %s' % message)
 
@@ -77,7 +77,7 @@ class GitConnector(object):
                                           resource))
         if resource != '-a':
             stdout, stderr, cmd = self._rungit(["add", resource])
-        stdout, stderr, cmd = self._rungit(["commit", resource, '-m', message])
+        message = '"%s"' % message
         stdout, stderr, cmd = self._rungit(["commit", resource, '-m', message])
         stdout, stderr, cmd = self._rungit(["push"])
         log.info('Commit done.')                        
