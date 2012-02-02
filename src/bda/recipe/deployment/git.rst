@@ -4,10 +4,8 @@ Test SVNConnector
 Preparations
 ------------
 
-Create a local bare git repo with one file
-::::::::::::::::::::::::::::::::::::::::::
+Create a local bare git repo with one file::
 
-::
     >>> import os
     >>> GITPATH = os.path.join(tempdir, 'foo.bare-git')
     >>> GITINITPATH = os.path.join(tempdir, 'foo.init-git')
@@ -54,10 +52,8 @@ Create a local bare git repo with one file
     >>> import shutil
     >>> shutil.rmtree(GITINITPATH)    
     
-Prepare connector
-:::::::::::::::::
+Prepare connector::
 
-::
     >>> CFGPATH = os.path.join(tempdir, '.bda.recipe.deployment.cfg')
     >>> SOURCESDIR = os.path.join(tempdir, 'git_sources')
 
@@ -69,8 +65,7 @@ Prepare connector
     >>> package = DeploymentPackage(config, 'foo')
     >>> connector = package.connector
 
-Clone Repo
-::::::::::
+Clone Repo::
 
 So lets see if we can clone this, aka checkout in the mr.developer world::
 

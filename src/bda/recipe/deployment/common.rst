@@ -52,8 +52,8 @@ Define settings::
     ...     'bar.baz': 'pypi',
     ... }
     >>> sources = {
-    ...     'foo.bar': 'svn https://svn.plone.org/foo.bar/trunk',
-    ...     'bar.baz': 'svn https://svn.plone.org/bar.baz/trunk',
+    ...     'foo.bar': 'svn https://svn.plone.org/svn/collective/foo.bar/trunk',
+    ...     'bar.baz': 'svn https://svn.plone.org/svn/collective/bar.baz/trunk',
     ... }
     >>> rc = os.path.join(tempdir, 'rc-sources.cfg')
     >>> live = os.path.join(tempdir, 'live-versions.cfg')
@@ -104,10 +104,10 @@ Query deployment information::
     >>> config.package('inexistent')
 
     >>> config.source('foo.bar')
-    'svn https://svn.plone.org/foo.bar/trunk'
+    'svn https://svn.plone.org/svn/collective/foo.bar/trunk'
 
     >>> config.source('bar.baz')
-    'svn https://svn.plone.org/bar.baz/trunk'
+    'svn https://svn.plone.org/svn/collective/bar.baz/trunk'
 
     >>> config.as_dict('distserver')
     {'bda': 'http://bda.org', 'pypi': 'http://pypi.org'}
@@ -116,8 +116,8 @@ Query deployment information::
     {'bar.baz': 'pypi', 'foo.bar': 'bda env=dev'}
 
     >>> config.as_dict('sources')
-    {'bar.baz': 'svn https://svn.plone.org/bar.baz/trunk',
-    'foo.bar': 'svn https://svn.plone.org/foo.bar/trunk'}
+    {'bar.baz': 'svn https://svn.plone.org/svn/collective/bar.baz/trunk',
+    'foo.bar': 'svn https://svn.plone.org/svn/collective/foo.bar/trunk'}
 
 ``__call__`` dumps config file::
 
@@ -127,8 +127,8 @@ Query deployment information::
     >>> file.close()
     >>> lines
     ['[sources]\n',
-    'bar.baz = svn https://svn.plone.org/bar.baz/trunk\n',
-    'foo.bar = svn https://svn.plone.org/foo.bar/trunk\n',
+    'bar.baz = svn https://svn.plone.org/svn/collective/bar.baz/trunk\n',
+    'foo.bar = svn https://svn.plone.org/svn/collective/foo.bar/trunk\n',
     '\n',
     '[distserver]\n',
     'bda = http://bda.org\n',
@@ -240,35 +240,6 @@ Environment checks::
     >>> config.env
     'dev'
 
-    >>> package.tag()
-    Traceback (most recent call last):
-      ...
-    DeploymentError: Wrong environment for 'tag' operation: 'rc'
-
-    >>> package.release()
-    Traceback (most recent call last):
-      ...
-    DeploymentError: Wrong environment for 'release' operation: 'rc'
-
-    >>> package.export_version()
-    Traceback (most recent call last):
-      ...
-    DeploymentError: Wrong environment for 'export_version' operation: 'rc'
-
-    >>> package.merge()
-    Traceback (most recent call last):
-      ...
-    DeploymentError: Wrong environment for 'merge' operation: 'rc'
-
-    >>> config.config.set('settings', 'env', 'rc')
-    >>> config.env
-    'rc'
-
-    >>> package.export_rc()
-    Traceback (most recent call last):
-      ...
-    DeploymentError: Wrong environment for 'export_rc' operation: 'dev'
-
     >>> config.config.set('settings', 'env', 'dev')
 
 Check some base stuff of DeploymentPackage::
@@ -286,49 +257,14 @@ Check some base stuff of DeploymentPackage::
     'http://bda.org'
 
     >>> package.package_uri
-    'https://svn.plone.org/foo.bar/trunk'
+    'https://svn.plone.org/svn/collective/foo.bar/trunk'
 
     >>> connector = package.connector
     >>> connector
     <bda.recipe.deployment.svn.SVNConnector object at ...>
-
-Check exporting of rc_sources for package::
-
-    >>> package.export_rc()
-    >>> file = open(config.rc)
-    >>> lines = [l for l in file.readlines()]
-    >>> file.close()
-    >>> lines
-    ['[sources]\n',
-    'foo.bar = svn https://svn.plone.org/foo.bar/branches/rc\n',
-    '\n']
-
-    >>> package.export_version()
-    Traceback (most recent call last):
-      ...
-    DeploymentError: Wrong environment for 'export_version' operation: 'rc'
-
-Check exporting of live version for package::
-
-    >>> config.config.set('settings', 'env', 'rc')
-    >>> package.export_rc()
-    Traceback (most recent call last):
-      ...
-    DeploymentError: Wrong environment for 'export_rc' operation: 'dev'
-    
-    >>> package.export_version()
-    >>> file = open(config.live)
-    >>> lines = [l for l in file.readlines()]
-    >>> file.close()
-    >>> lines
-    ['[versions]\n', 
-    'foo.bar = 1.1\n', 
-    '\n']
     
 Cleanup::
 
     >>> import shutil
     >>> shutil.rmtree(os.path.join(tempdir, 'sources'))
-    >>> os.remove(os.path.join(tempdir, 'live-versions.cfg'))    
-    >>> os.remove(os.path.join(tempdir, 'rc-sources.cfg'))
     

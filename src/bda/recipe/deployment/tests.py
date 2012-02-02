@@ -15,7 +15,7 @@ TESTFILES = [
     'common.rst',
     'svn.rst',
     'git.rst',
-    'main.rst'
+    'main.rst',
 ]
 
 tempdir = tempfile.mkdtemp()
