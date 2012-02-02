@@ -44,9 +44,9 @@ def deploy_single():
 
 #-------------------------------------------------------------------------------
 
-def repopasswd(args):
+def repopasswd(arguments):
     log.info("Set user and password for server")
-    pwdmgr = PWDManager(args.servername)
+    pwdmgr = PWDManager(arguments.distserver[0])
     pwdmgr.set()
 
 sub_rp = deploy_subparsers.add_parser('repopasswd', 
