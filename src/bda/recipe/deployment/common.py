@@ -300,26 +300,32 @@ class DeploymentPackage(object):
         
         XXX: make me thread safe.
         """
-        pwdmgr = PWDManager(self.config.package(self.package))
-        username, password = pwdmgr.get()
-        package_path = self.package_path
-        setup = os.path.join(package_path, 'setup.py')
+        setup = os.path.join(self.package_path, 'setup.py')
         old_argv = copy.copy(sys.argv)
-        sys.argv = ['setup.py', 
-                    'sdist',
-                    'deploymentregister',
-                    'deploymentupload']
-        if self.config.package(self.package) in self.register_dist:
-            sys.argv.append('deploymentregister')  
-        env.waitress = {
-            'repository': self.dist_server,
-            'username': username,
-            'password': password,
-        }
-        os.chdir(package_path)
-        res = execfile('setup.py', globals(), {'__file__': setup})
+        os.chdir(self.package_path)
+        if self.dist_server.startswith('file://'):
+            sys.argv = ['setup.py',
+                        'sdist',
+                        '-d',
+                        self.dist_server[7:]]
+            res = execfile('setup.py', globals(), {'__file__': setup})
+        else:
+            pwdmgr = PWDManager(self.config.package(self.package))
+            username, password = pwdmgr.get()
+            sys.argv = ['setup.py', 
+                        'sdist',
+                        'deploymentregister',            
+                        'deploymentupload']
+            if self.config.package(self.package) in self.register_dist:
+                sys.argv.append('deploymentregister')  
+            env.waitress = {
+                'repository': self.dist_server,
+                'username': username,
+                'password': password,
+            }
+            res = execfile('setup.py', globals(), {'__file__': setup})
+            env.waitress = dict()
         sys.argv = old_argv
-        env.waitress = dict()
     
     def export_rc(self):
         """Export package rc repo info to configured rc sources config.

@@ -23,6 +23,13 @@ environments:
 *Live*
 
 
+Installation
+============
+
+NOTES ON .pypirc:
+
+Make sure that ```repository: https://pypi.python.org/pypi`` is set for pypi
+server, even if default. Otherwise releases to pypi will fail. 
 
 
 OUTDATED
