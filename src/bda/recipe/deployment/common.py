@@ -150,7 +150,7 @@ class LiveVersionsCFG(_ConfigMixin):
     def get(self, package):
         return self.config.get('versions', package)        
 
-class ReleaseRC(_ConfigMixin):
+class ReleaseCFG(_ConfigMixin):
     
     def set(self, server, user, password):
         if not self.config.has_section(server):
@@ -200,7 +200,7 @@ class PWDManager(object):
     
     def __init__(self, server):
         self.server = server
-        self.releaserc = ReleaseRC(env.RC_PATH)
+        self.releaserc = ReleaseCFG(env.CFG_PATH)
     
     def get(self):
         res = self.releaserc.get(self.server)

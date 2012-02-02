@@ -1,8 +1,7 @@
 Test common stuff
 =================
 
-Create dummy environment.
-:::::::::::::::::::::::::
+Create dummy environment::
 
     >>> import os
     >>> os.mkdir(os.path.join(tempdir, 'sources'))
@@ -10,7 +9,7 @@ Create dummy environment.
     >>> os.mkdir(os.path.join(tempdir, 'sources', 'bar.baz'))
 
 For version tagging and releasing, parameter ``version`` is expected in
-``setup.py``.
+``setup.py``::
 
     >>> SETUP_TMPL = """from setuptools import setup, find_packages
     ... import sys, os
@@ -32,20 +31,17 @@ For version tagging and releasing, parameter ``version`` is expected in
     >>> file.write(SETUP_TMPL % { 'package': 'bar.baz' })
     >>> file.close()
 
-Config gets stored in '.bda.recipe.deployment.cfg' by default.
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+Config gets stored in '.bda.recipe.deployment.cfg' by default::
 
     >>> path = os.path.join(tempdir, '.bda.recipe.deployment.cfg')
     >>> path
     '...bda.recipe.deployment.cfg'
 
-Import Config.
-::::::::::::::
+Import Config::
 
     >>> from bda.recipe.deployment.common import Config
 
-Define settings.
-::::::::::::::::
+Define settings::
 
     >>> distserver = {
     ...     'bda': 'http://bda.org',
@@ -64,16 +60,14 @@ Define settings.
     >>> env = 'dev'
     >>> sources_dir = os.path.join(tempdir, 'sources')
 
-Create new config.
-::::::::::::::::::
+Create new config::
 
     >>> buildout_base = '/home/USERNAME/bdarecipedeploymenttest'
 
     >>> config = Config(path, buildout_base, distserver, packages, sources, rc,
     ...                 live, env, sources_dir)
 
-Query deployment information.
-:::::::::::::::::::::::::::::
+Query deployment information::
 
     >>> config.rc
     '/.../rc-sources.cfg'
@@ -125,8 +119,7 @@ Query deployment information.
     {'bar.baz': 'svn https://svn.plone.org/bar.baz/trunk',
     'foo.bar': 'svn https://svn.plone.org/foo.bar/trunk'}
 
-``__call__`` dumps config file.
-:::::::::::::::::::::::::::::::
+``__call__`` dumps config file::
 
     >>> config()
     >>> file = open(path)
@@ -154,14 +147,13 @@ Query deployment information.
     '\n']
 
 
-Create config with existing content.
-::::::::::::::::::::::::::::::::::::
+Create config with existing content::
 
     >>> config = Config(path)
     >>> config.distserver(config.package('bar.baz'))
     'http://pypi.org'
 
-Check ``PackageVersion`` object.
+Check ``PackageVersion`` object::
 
     >>> from bda.recipe.deployment.common import PackageVersion
     >>> path = os.path.join(config.sources_dir, 'foo.bar', 'setup.py')
@@ -186,8 +178,7 @@ Check ``PackageVersion`` object.
     '    version=version,\n',
     '    )\n']
 
-Check ``RcSourcesCFG`` object.
-::::::::::::::::::::::::::::::
+Check ``RcSourcesCFG`` object::
 
     >>> from bda.recipe.deployment.common import RcSourcesCFG
     >>> rcsources = RcSourcesCFG(config.rc)
@@ -204,8 +195,7 @@ Check ``RcSourcesCFG`` object.
 
     >>> os.remove(config.rc)
 
-Check ``LiveVersionsCFG`` object.
-:::::::::::::::::::::::::::::::::
+Check ``LiveVersionsCFG`` object::
 
     >>> from bda.recipe.deployment.common import LiveVersionsCFG
     >>> versions = LiveVersionsCFG(config.live)
@@ -221,12 +211,11 @@ Check ``LiveVersionsCFG`` object.
 
     >>> os.remove(config.live)
 
-Check ``ReleaseRC`` object.
-:::::::::::::::::::::::::::
+Check ``ReleaseCFG`` object::
 
-    >>> from bda.recipe.deployment.common import ReleaseRC
-    >>> path = os.path.join(tempdir, '.releaserc')
-    >>> releaserc = ReleaseRC(path)
+    >>> from bda.recipe.deployment.common import ReleaseCFG
+    >>> path = os.path.join(tempdir, '.releasecfg')
+    >>> releaserc = ReleaseCFG(path)
     >>> releaserc.set('pypi', 'mustermann', 'secret')
     >>> releaserc.get('pypi')
     ('mustermann', 'secret')
@@ -241,13 +230,12 @@ Check ``ReleaseRC`` object.
     'password = secret\n',
     '\n']
 
-Test ``DeploymentPackage`` object.
+Test ``DeploymentPackage`` object::
 
     >>> from bda.recipe.deployment.common import DeploymentPackage
     >>> package = DeploymentPackage(config, 'foo.bar')
 
-Environment checks.
-:::::::::::::::::::
+Environment checks::
 
     >>> config.env
     'dev'
@@ -283,8 +271,7 @@ Environment checks.
 
     >>> config.config.set('settings', 'env', 'dev')
 
-Check some base stuff of DeploymentPackage.
-:::::::::::::::::::::::::::::::::::::::::::
+Check some base stuff of DeploymentPackage::
 
     >>> package.package_path
     '/.../sources/foo.bar'
@@ -305,8 +292,7 @@ Check some base stuff of DeploymentPackage.
     >>> connector
     <bda.recipe.deployment.svn.SVNConnector object at ...>
 
-Check exporting of rc_sources for package.
-::::::::::::::::::::::::::::::::::::::::::
+Check exporting of rc_sources for package::
 
     >>> package.export_rc()
     >>> file = open(config.rc)
@@ -339,10 +325,7 @@ Check exporting of live version for package::
     'foo.bar = 1.1\n', 
     '\n']
     
-Cleanup
-:::::::
-
-::
+Cleanup::
 
     >>> import shutil
     >>> shutil.rmtree(os.path.join(tempdir, 'sources'))

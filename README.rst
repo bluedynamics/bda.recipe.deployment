@@ -1,5 +1,29 @@
+======================================
 Deployment Buildout-Recipe and Scripts
 ======================================
+
+Motivation
+==========
+
+...
+
+Overview
+========
+
+``bda.recipe.deployment`` offers a deployment cycle for python projects.
+
+The deployment cycle consists of three possible installations, further called
+environments:
+
+*Development*
+    The development environment is used to develop features ...
+
+*Release Candidate*
+
+*Live*
+
+
+
 
 OUTDATED
 
@@ -91,7 +115,7 @@ Konfiguration
 -------------
 
 Erfolgt über buildout
-::
+:::::::::::::::::::::
 
     recipe=bda.recipe.deployment
     distserver =
