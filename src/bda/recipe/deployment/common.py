@@ -304,8 +304,9 @@ class DeploymentPackage(object):
         setup = os.path.join(package_path, 'setup.py')
         old_argv = copy.copy(sys.argv)
         sys.argv = ['setup.py', 
-                    'sdist',                     
-                    'deploymentupload']        
+                    'sdist',
+                    'deploymentregister',            
+                    'deploymentupload']
         if self.config.package(self.package) in self.register_dist:
             sys.argv.append('deploymentregister')  
         env.waitress = {
