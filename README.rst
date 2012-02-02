@@ -1,16 +1,29 @@
-======================================
-Deployment Buildout-Recipe and Scripts
-======================================
-
-Motivation
-==========
-
-...
+============================================
+Buildout recipe managing project deployments
+============================================
 
 Overview
 ========
 
-``bda.recipe.deployment`` offers a deployment cycle for python projects.
+``bda.recipe.deployment`` offers a deployment cycle and helper scripts for
+buildout based projects.
+
+
+Motivation
+==========
+
+While in small projects pinning checkout revisions or package versions in order
+to deploy reconstructable setups works fine, the same strategy runs out of
+it's possibilities as soon as it comes to deployment of projects where
+steps needed to publish a new feature not always follow a consistent and
+repeating cycle.
+
+Consider following example. A Customer comes up with 2 feature requests. The
+customer always communicates with the project manager, from customer point of 
+view the cycle is clear. Each feature must be tested and after approving the 
+rollout could be made. Now the developer imlements feature one, and while the 
+first feature waits for testing and approval, he wants to implement second one 
+without influence to the approval cycle.
 
 The deployment cycle consists of three possible installations, further called
 environments:
