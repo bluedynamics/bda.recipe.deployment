@@ -197,7 +197,7 @@ if config.check_env('dev'):
 def tag(args):
     log.info("Tag package")
     deploymentpackage = DeploymentPackage(config, args.package[0])
-    #XXX check env of package match
+    deploymentpackage.check_env(self.config.env)
     try:
         deploymentpackage.tag()
     except DeploymentError, e:
@@ -215,7 +215,7 @@ sub_tag.set_defaults(func=tag)
 def release(args):
     log.info("Release package")
     deploymentpackage = DeploymentPackage(config, args.package[0])
-    #XXX check env of package match    
+    deploymentpackage.check_env(self.config.env)
     try:
         deploymentpackage.release()
     except DeploymentError, e:
@@ -233,6 +233,7 @@ sub_rel.set_defaults(func=release)
 def exportliveversion(*args):
     log.info("Export live version")
     deploymentpackage = DeploymentPackage(config, args.package[0])
+    deploymentpackage.check_env(self.config.env)
     try:
         deploymentpackage.export_version()
     except DeploymentError, e:
@@ -291,12 +292,7 @@ def candidate(args):
     """
     package, newversion = args.package[0], args.version[0]
     deploymentpackage = DeploymentPackage(config, package)
-    try:
-        deploymentpackage._check_environment('deploycandidate', 'dev')
-    except DeploymentError, e:
-        log.error("Cannot deploy candidate: %s" % e)
-        return
-    #XXX check env of package match
+    deploymentpackage.check_env("rc")
     log.info("Complete deployment of release candidate %s with version %s" % 
              (package, newversion))
     try:
@@ -332,7 +328,7 @@ def fullrelease(args):
     """
     package = args.package[0]
     deploymentpackage = DeploymentPackage(config, package)
-    #XXX check env of package match, chnage following
+    deploymentpackage.check_env(self.config.env)
     try:
         deploymentpackage._check_environment('deploycandidate', 'rc')
     except DeploymentError, e:
