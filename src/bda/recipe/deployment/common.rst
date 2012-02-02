@@ -55,8 +55,9 @@ Define settings::
     ...     'foo.bar': 'svn https://svn.plone.org/svn/collective/foo.bar/trunk',
     ...     'bar.baz': 'svn https://svn.plone.org/svn/collective/bar.baz/trunk',
     ... }
-    >>> rc = os.path.join(tempdir, 'rc-sources.cfg')
-    >>> live = os.path.join(tempdir, 'live-versions.cfg')
+    >>> rc_sources = os.path.join(tempdir, 'rc-sources.cfg')
+    >>> rc_versions = os.path.join(tempdir, 'rc-versions.cfg')
+    >>> live_versions = os.path.join(tempdir, 'live-versions.cfg')
     >>> env = 'dev'
     >>> sources_dir = os.path.join(tempdir, 'sources')
 
@@ -64,15 +65,19 @@ Create new config::
 
     >>> buildout_base = '/home/USERNAME/bdarecipedeploymenttest'
 
-    >>> config = Config(path, buildout_base, distserver, packages, sources, rc,
-    ...                 live, env, sources_dir)
+    >>> config = Config(path, buildout_base, distserver, packages, sources, 
+    ...                 rc_sources, rc_versions, live_versions, 
+    ...                 env, sources_dir)
 
 Query deployment information::
 
-    >>> config.rc
+    >>> config.rc_sources
     '/.../rc-sources.cfg'
 
-    >>> config.live
+    >>> config.rc_versions
+    '/.../rc-versions.cfg'
+
+    >>> config.live_versions
     '/.../live-versions.cfg'
 
     >>> config.env

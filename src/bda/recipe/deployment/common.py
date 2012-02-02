@@ -39,8 +39,8 @@ class _ConfigMixin(object):
 class Config(_ConfigMixin):
     
     def __init__(self, path, buildout_base=None, distserver=None, packages=None,
-                 sources=None, rc=None, live=None, env=None, sources_dir=None,
-                 register=None):
+                 sources=None, rcsources=None, rcversions=None, live=None, 
+                 env=None, sources_dir=None, register=None):
         _ConfigMixin.__init__(self, path)
         self.packages = packages
         if not self.config.has_section('distserver'):
@@ -62,8 +62,10 @@ class Config(_ConfigMixin):
                 self.config.set('sources', key, val)
         if buildout_base is not None:
             self.config.set('settings', 'buildout_base', buildout_base)
-        if rc is not None:
-            self.config.set('settings', 'rc', rc)
+        if rcsources is not None:       
+            self.config.set('settings', 'rc-sources', rcsources)
+        if rcversions is not None:
+            self.config.set('settings', 'rc-versions', rcversions)
         if live is not None:
             self.config.set('settings', 'live', live)
         if env is not None:
@@ -98,7 +100,7 @@ class Config(_ConfigMixin):
         return self.read_option('settings', 'register')
     
     def distserver(self, name):
-        return self.read_option('distserver', name)    
+        return self.read_option('distserver', name)
     
     def _package_split(self, pkgstr):
         if not pkgstr:
@@ -305,7 +307,7 @@ class DeploymentPackage(object):
         old_argv = copy.copy(sys.argv)
         sys.argv = ['setup.py', 
                     'sdist',
-                    'deploymentregister',            
+                    'deploymentregister',
                     'deploymentupload']
         if self.config.package(self.package) in self.register_dist:
             sys.argv.append('deploymentregister')  
