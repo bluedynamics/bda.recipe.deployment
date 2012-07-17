@@ -215,9 +215,9 @@ sub_tag.set_defaults(func=tag)
 
 #-------------------------------------------------------------------------------
 
-def release(args):
+def release(cargs):
     log.info("Release package")
-    deploymentpackage = DeploymentPackage(config, args.package[0])
+    deploymentpackage = DeploymentPackage(config, cargs.package[0])
     deploymentpackage.check_env(config.env)
     try:
         deploymentpackage.release()

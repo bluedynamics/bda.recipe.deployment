@@ -265,7 +265,7 @@ class DeploymentPackage(object):
     def commit_versions(self):
         """Function committing LIVE/RC source file.
         """
-        if self.check_env('dev'):
+        if self.package_options['env'] == 'dev':
             self.commit_buildout(self.config.rc_versions, '"RC versions updated"')
         self.commit_buildout(self.config.live_versions, '"LIVE versions updated"')
     
@@ -299,8 +299,6 @@ class DeploymentPackage(object):
     
     def release(self):
         """Release package to configured dist server.
-        
-        Function only callable in ``rc`` environment.
         
         Raise ``DeploymentError`` if called in wrong environment.
         
@@ -351,7 +349,7 @@ class DeploymentPackage(object):
         """Export current resource version to configured live/rc versions 
         config.
         """
-        if self.check_env('dev'):
+        if self.package_options['env'] == 'dev':
             versions = VersionsCFG(self.config.rc_versions)
             versions.set(self.package, self.version)
             versions()
