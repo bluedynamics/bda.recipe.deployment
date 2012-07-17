@@ -145,11 +145,14 @@ sub_ci.set_defaults(func=commit, resource=None,
 
 #-------------------------------------------------------------------------------
 
-def merge(args):
+def merge(cargs):
     log.info("Merge resource to RC")
-    deploymentpackage = DeploymentPackage(config, args.package[0])
+    deploymentpackage = DeploymentPackage(config, cargs.package[0])
+    resource = None
+    if cargs.resource:
+        resource = cargs.resource[0]
     try:
-        deploymentpackage.merge(args.resource[0])
+        deploymentpackage.merge(resource)
     except DeploymentError, e:
         log.error("Merging failed: %s" % e)
         return
