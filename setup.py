@@ -1,22 +1,26 @@
 from setuptools import setup, find_packages
 import os
-version = "2.0a4"
+version = "2.0beta"
 
-shortdesc ="bda deployment process"
+shortdesc = "python deployment process based on buildout and mr.developer"
 longdesc = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
+longdesc += open(os.path.join(os.path.dirname(__file__), 'LICENSE.rst')).read()
 
 setup(name="bda.recipe.deployment",
       version=version,
       description=shortdesc,
       long_description=longdesc,
       classifiers=[
-          "",
+            'License :: OSI Approved :: GNU General Public License (GPL)',
+            'Operating System :: OS Independent',
+            'Programming Language :: Python',
+            'Topic :: Software Development',
       ],
       keywords="",
-      author="",
-      author_email="",
-      url="",
-      license="",
+      author="BlueDynamics Alliance",
+      author_email="dev@bluedynamics.com",
+      url="http://pypi.python.org/pypi/bda.recipe.deployment",
+      license="GPLv2",
       packages=find_packages("src"),
       package_dir={"": "src"},
       namespace_packages=["bda", "bda.recipe"],
@@ -28,7 +32,7 @@ setup(name="bda.recipe.deployment",
           'zope.configuration',
           'mr.developer',
       ],
-      extras_require = dict(
+      extras_require=dict(
           test=[
             'interlude',
             'zope.testing',

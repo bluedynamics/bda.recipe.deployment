@@ -18,197 +18,196 @@ it's possibilities as soon as it comes to deployment of projects where
 steps needed to publish a new feature not always follow a consistent and
 repeating cycle.
 
-Consider following example. A Customer comes up with 2 feature requests. The
-customer always communicates with the project manager, from customer point of 
-view the cycle is clear. Each feature must be tested and after approving the 
-rollout could be made. Now the developer imlements feature one, and while the 
-first feature waits for testing and approval, he wants to implement second one 
+Consider following example. A customer comes up with two feature requests. The
+customer always communicates with the project manager, from customer point of
+view the cycle is clear. Each feature must be tested and after approving the
+rollout could be made. Now the developer imlements feature one, and while the
+first feature waits for testing and approval, he wants to implement second one
 without influence to the approval cycle.
 
 The deployment cycle consists of three possible installations, further called
 environments:
 
-*Development*
-    The development environment is used to develop features ...
+Development
+    The development environment is used to develop features on developers local
+    maschine.
 
-*Release Candidate*
+Release Candidate
+    The environment on the testing maschine accessible for customers testing.
 
-*Live*
-
-
-Installation
-============
-
-NOTES ON .pypirc:
-
-Make sure that ```repository: https://pypi.python.org/pypi`` is set for pypi
-server, even if default. Otherwise releases to pypi will fail. 
+Live
+    The tested and stable live system.
 
 
-OUTDATED
+Process
+-------
 
-Integrated buildouts with release cycles. Development in subversion, release
-candidate as branch in subversion, release against public or own egg-server 
-(Package Index).
+Overall process:
 
-Overview
---------
+1) Developer uses ``dev.cfg``. If changes were done
+``./bin/deploy candidate MODULENAME NEWVERSION`` is called. Modules RC-branch is
+created/synced and the sources section in file for rc environment is modified
+and committed.
 
-Overall process: 
+2) Release Manager uses ``rc.cfg`` on its testing checkout. After svn/git update
+and buildout (re-)run the setup contains all release candidates branches.
+Software can be tested. In a second cycle Release Manager can merge changes from
+development branch into rc branch.
 
-1) Developer uses ``dev.cfg``. If changes were done 
-``./bin/deploycandidate MODULENAME NEWVERSION`` is called. Modules RC-branch is
-synced and the sources section file for rc environment is modified and committed.
-
-2) Release Manager uses ``rc.cfg`` on its testing checkout. After svn up and 
-buildout (re-)run the setup contains all release candidates. The software can be 
-tested.
-
-3) Release Manager decides to release a module after testing for live-usage. 
-In rc-environment ``./bin/deployrelease MODULENAME `` is called and the egg is 
-uploaded to the configured eggserver. The live-versions section file is 
-modifed and committed. 
+3) Release Manager decides to release a package after testing for live-usage.
+In rc-environment ``./bin/deploy release MODULENAME `` is called and the egg is
+uploaded to the configured eggserver or saved local. The live-versions section
+in file for live-environment is modifed and committed.
 
 4) Live-System-Administrator uses ``live.cfg`` on the live-deployment maschine.
-After svn up and buildout (re-)run the most recent releases are available. 
+After git/svn up and buildout (re-)run the most recent releases are available.
+
+Optional (if configured) the RC steps 2 and 3  can be omitted and a release may
+happen from dev direct to live.
+
+While Developer and Release Candidate needs the add-on ``mr.developer``, Live
+does not it.
+
+
+Buildout Structure
+------------------
 
 Proposed buildout structure::
 
-    dev.cfg
-    rc.cfg
-    live.cfg
-    cfg/base.cfg
-    cfg/deployment.cfg
-    cfg/dev-sources.cfg
-    cfg/global-versions.cfg (optional)
-    cfg/rc-sources.cfg (generated)
-    cfg/live-versions.cfg (generated)
+    dev.cfg (manual)
+    rc.cfg (manual)
+    live.cfg (manual)
+    etc/base.cfg (manual)
+    etc/deployment.cfg (manual)
+    etc/sources-dev.cfg (manual)
+    etc/sources-rc.cfg (generated)
+    etc/versions-rc.cfg (generated)
+    etc/versions-live.cfg (generated)
+    cfg/versions-global.cfg (manual, optional)
     
 dev.cfg
-    Contains parts for local development, includes developer tools if 
-    neccessary. Includes base, global-versions, dev-sources, deployment.    
-    
-rc.cfg 
-    Contains parts for deployment on a test-server. Includes  base, 
-    global-versions, rc-sources, deployment.
-    
-live.cfg        
-    Contains parts for deployment on a live-server. Includes  base,
-    global-versions, live-versions.
-    
-base.cfg 
-    contains all common parts of the buildout needed all three types of 
-    environment.
-    
-deployment.cfg  
-    Contains deployment specific parts, such as parameters for deployment and
-    list of managed packages and which dist-server to use.
-    
-dev-sources.cfg
-    Contains the sources-section for all developer controlled sources.
-    
+    Contains parts for local development, includes developer tools if
+    necessary. Included parts:
+
+    -``base.cfg``
+    -``versions-global.cfg``
+    -``sources-dev.cfg``,
+    -``deployment.cfg``.
+
+rc.cfg
+    Contains parts for local on a test-server. Included parts:
+
+    -``base.cfg``
+    -``versions-global.cfg``
+    -``versions-rc.cfg``
+    -``sources-rc.cfg``,
+    -``deployment.cfg``.
+
+
+live.cfg
+    Contains parts for deployment on a live-server. Included parts:
+
+    -``base.cfg``
+    -``versions-global.cfg``
+    -``versions-live.cfg``
+
+
+
+base.cfg
+    contains all common sections and settingsof the buildout needed by all
+    three types of environment.
+
+deployment.cfg
+    Contains deployment specific sections and settings, such as parameters for
+    deployment and list of managed packages and which dist-server to use.
+
 global-versions.cfg
-    Contains the common version section. In smaller projects this can be put in 
+    Contains the common version section. In smaller projects this can be put in
     base.cfg
-    
-rc-sources.cfg
-    Contains the sources for Release-Candidate setup. This file is generated by 
-    scripts. 
 
-live-versions.cfg
-    Contains the versions of developer controlled sources used in 
-    live-deployment. This file is generated by scripts. 
+sources-dev.cfg
+    Contains the sources-section for all developer controlled sources.
 
-Funktionen
-----------
+sources-rc.cfg
+    Contains the sources for Release-Candidate setup. This file is generated by
+    scripts. It points to the automatically created branches.
 
-* Mergen einzelner Resourcen in den "rc" branch
+versions-rc.cfg
+    Contains the versions of developer controlled sources used in
+    rc-deployment. This are the packages which do not need a RC step.
+    This file is generated by scripts.
 
-* Taggen eines "rc" branches
+versions-live.cfg
+    Contains the versions of developer controlled sources used in
+    live-deployment. This file is generated by scripts.
 
-* Releasen eines "rc" branches
+Commands
+--------
 
-* Generieren "version.txt" für live Umgebung
+In buildouts bin directory there are two main commands which itself have a
+bunch of sub commands, the ``deploy`` and the ``bda_deployment_helper``. Latter
+is rarely used, i.e. you may need it to fix things. So the main tool for the
+daily usage is ``deploy``:
+
+``deploy``
+    main command for all daily tasks
+
+    subcommands are context sensitive. In Dev environment there are other
+    commands available than in RC enviroment. So in Dev this are:
+
+    ``repopasswd``
+        sets the username/ password for the pypi server
+
+    ``info``
+        prints info about managed packages.
+
+    ``version``
+        prints version of a package
+
+    ``candidate``
+        prepare a release candidate for a package, this includes creation of a
+        branch
+
+    ``release``
+        make a release of a package, this includes tagging and upload to the
+        index (or local file release) and setting the version in
+        ``versions-rc.cfg`` and ``versions-live.cfg``.
+
+    In RC the commands are:
+
+    ``repopasswd``
+         see above
+
+    ``info``
+         see above
+
+    ``version``
+         see above
+
+    ``release``
+        make a release of a package, this includes tagging and upload to the
+        index (or local file release) and setting the version in
+        ``versions-live.cfg``.
+
+    ``merge``
+        merge current trunk/master branch of a package into the rc branch
+
+All commands and subcommands have a help to find their paramaters.
 
 
-Konfiguration
--------------
+Source Code
+===========
 
-Erfolgt über buildout
-:::::::::::::::::::::
+The sources are in a GIT DVCS with its main branches at
+`github <http://github.com/bluedynamics/bda.recipe.deployment>`_.
 
-    recipe=bda.recipe.deployment
-    distserver =
-        bda https://dists.bluedynamice.eu/eggs
-        pypi https://pypi.python.org/pypi
-    
-    packages =
-        bda.xyz bda
-        cornerstone.xyz pypi
+We'd be happy to see many forks and pull-requests to make it even better.
 
 
-Release script
---------------
+Contributors
+============
 
-* erstellt einen tag im repository (nur svn) mit version nummer als name
+- Jens W. Klein <jk [at] kleinundpartner [dot] at>
 
-* release auf distserver mit name (aus config)
+- Robert Niederrreiter <rnix [at] squarewavea [dot] t>
 
-* modifikation versions.txt
-
-
-Merge Script
-------------
-
-* merge einer resource oder eines resource directories nach "rc" branch. 
-  der branch wird erwartet in "repository_base/rc" (neben trunk)
-  
-  
-Anwendung
-=========
-
-Dev-Env
--------
-
-* Manuell Version anpassen: ./bin/version PACKAGENAME VERSIONNUMBER
-
-* commit package
-
-* ./bin/deployment/exportrcsources PACKAGENAME
-
-einmal: XXX TODO: ./bin/deployment/creatercbranch PACKAGENAME
-
-Convinience:
-
-    ./bin/deployrc PACKAGENAME VERSIONNUMBER
-    
-    - Version anpassen
-    - commit package
-    - create branch if not exist
-    - export rc sources
-    - commit rc sources
-
-    
-RC-Env
-------
-
-* Merge Dev zu RC: ./bin/deployment/merge PACKAGENAME [FILENAMES]
-
--> Testen
-
-* Tag Version: ./bin/deployment/tag PACKAGENAME
-
-* Export Live Versions: ./bin/deployment/exportliveversion PACKAGENAME
-
-* Release: ./bin/deployment/release  PACKAGENAME
-
-* commit live versions
-
-Convinience Release:
-
-    ./bin/deployrelease
-    
-    - tag version
-    - export live versions
-    - release
-    - commit
