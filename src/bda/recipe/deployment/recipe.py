@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-
 import zc.buildout
 import shutil
 import os
 from bda.recipe.deployment.common import Config
 
+
 class Recipe(object):
-    
+
     def __init__(self, buildout, name, options):
         self.name = name
         self.options = options
@@ -77,6 +77,6 @@ class Recipe(object):
         Config(path, self.buildout_base, self.distserver, self.packages,
                sources, self.rc_sources, self.rc_versions, self.live_versions, 
                self.env, self.sources_dir, self.register)()
-        
+
     def update(self):
         return self.install()

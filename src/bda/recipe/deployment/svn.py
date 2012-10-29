@@ -7,8 +7,9 @@ import logging
 
 log = logging.getLogger('bda.recipe.deployment svn')
 
+
 class SVNConnector(SVNWorkingCopy):
-    
+
     def __init__(self, package):
         if not package.package_uri.endswith('trunk') \
            and '/branches/' not in package.package_uri:
@@ -21,11 +22,11 @@ class SVNConnector(SVNWorkingCopy):
         self.source['name'] = package.package
         self.source['path'] = package.package_path
         self.source['url'] = package.package_uri
-    
+
     @property
     def rc_source(self):
         return 'svn %s' % self._rc_uri
-    
+
     def commit(self, resource, message):
         url = self.package.package_uri
         resource = os.path.join(self.package.config.sources_dir,
@@ -37,10 +38,10 @@ class SVNConnector(SVNWorkingCopy):
         log.info(msg)
         stdout, stderr, returncode = self._svn_communicate(args, url,
                                                            **kwargs)
-        
+
     def commit_buildout(self, resource, message):
         self.commit(resource, message)
-    
+
     def merge(self, resource=None):
         """
         svn ci path/to/foo -m 'RC Merge'
@@ -65,7 +66,7 @@ class SVNConnector(SVNWorkingCopy):
             raise DeploymentError(msg)
         if kwargs.get('verbose', False):
             return stdout
-    
+
     def creatercbranch(self):
         source_uri = self.package.package_uri
         branches_path = '%s/branches' % self._svn_base_path
@@ -88,7 +89,7 @@ class SVNConnector(SVNWorkingCopy):
                   "RC environment to synchronize resources.'"
             msg = msg % self.package.package
             log.info(msg)
-    
+
     def tag(self):
         msg = "'Tag %s version %s'" % (self.package.package,
                                       self.package.version)
@@ -112,7 +113,7 @@ class SVNConnector(SVNWorkingCopy):
                 raise DeploymentError(msg)
         msg = "'Tag %s version'" % self.package.version
         self._svn_copy(self.package.package_uri, self._tag_uri, msg)
-    
+
     def _svn_exists(self, uri):      
         log.info("Check for %s" % uri)
         cmd = subprocess.Popen(["svn", "ls", "--non-interactive", uri],
@@ -124,7 +125,7 @@ class SVNConnector(SVNWorkingCopy):
             return False
         log.info("...found %s" % uri)
         return True
-    
+
     def _svn_copy(self, source, target, message):
         url = self.package.package_uri
         args = ["svn", "cp", source, target, '-m', message]
@@ -137,7 +138,7 @@ class SVNConnector(SVNWorkingCopy):
             raise DeploymentError(msg)
         if kwargs.get('verbose', False):
             return stdout
-    
+
     @property
     def _svn_base_path(self):
         uri = self.package.package_uri
@@ -148,7 +149,7 @@ class SVNConnector(SVNWorkingCopy):
             raise ValueError, \
                   'URI not valid (trunk or branches needed): %s' % uri
         return uri[:idx]
-        
+
     @property
     def _rc_uri(self):
         uri = '%s/branches/rc' % self._svn_base_path
@@ -157,9 +158,9 @@ class SVNConnector(SVNWorkingCopy):
         idx = self.package.package_uri.rfind('/') + 1
         uri += '-%s' % self.package.package_uri[idx:]
         return uri
-    
+
     @property
     def _tag_uri(self):
         return '%s/tags/%s' % (self._svn_base_path, self.package.version)
-            
+
 DeploymentPackage.connectors['svn'] = SVNConnector

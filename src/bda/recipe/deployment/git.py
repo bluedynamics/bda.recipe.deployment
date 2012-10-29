@@ -9,15 +9,16 @@ log = logging.getLogger('bda.recipe.deployment git')
 
 CLEAN, DIRTY = 'clean', 'dirty'
 
+
 class GitConnector(object):
-    
+
     def __init__(self, package):
         self.package = package
-        
+
     @property
     def rc_source(self):
         return 'git %s branch=rc' % self.package.package_uri
-    
+
     def source(self, context="package"):
         if context=='package':
             return dict(name=self.package.package, 
@@ -29,10 +30,10 @@ class GitConnector(object):
                         url=None)
         else: 
             raise DeploymentError('Commit context "%s" not allowed.' % context)
-    
+
     def git_wc(self, context="package"):
         return gitWorkingCopyFactory(self.source(context=context))
-            
+
     def _rungit(self, command, msg='', context='package'):
         """runs git command in a given context
         
@@ -65,7 +66,7 @@ class GitConnector(object):
         cmd = ['pull', 'origin', branch]
         stdout, stderr, cmd = self._rungit(cmd)
         log.info('Pull done.')                        
-                       
+
     def commit(self, resource='-a', message='bda.recipe.deployment commit'):
         """Commit means here a commit and push in one
         """
@@ -103,10 +104,10 @@ class GitConnector(object):
         context = remote and 'origin' or None
         return bool([_ for _ in branches 
                      if _['branch']=='rc' and _['remote']==context])
-        
+
     def _current_branch(self):
         return [_['branch'] for _ in self._get_branches() if _['current']][0]
-    
+
     def _get_branches(self):
         """a list with value as dict with:
             * key=branch: branch-name
@@ -150,7 +151,7 @@ class GitConnector(object):
                      continue
                 item['alias'] = alias                      
         return result     
-    
+
     def creatercbranch(self):
         """creates rc branch if not exists"""
         log.info('Initiate creation of RC branch')
@@ -175,7 +176,7 @@ class GitConnector(object):
             stdout, stderr, cmd = self._rungit(["push", "-u", "origin", "rc"])
             stdout, stderr, cmd = self._rungit(["checkout", "master"])            
             return True
-    
+
     def merge(self, resource=None):
         """merges changes from dev branch to rc branch"""
         log.info('Merge master into rc branch')
@@ -196,11 +197,10 @@ class GitConnector(object):
     def _tags(self):
         stdout, stderr, cmd = self._rungit(["tag"])
         return [_.strip() for _ in stdout.split('\n') if _.strip()]
-    
+
     def _tag(self, version, msg):
         stdout, stderr, cmd = self._rungit(["tag", '-a', version, '-m', msg])
-        
-    
+
     def tag(self):
         """Tag package from rc  with version. Use version of
         package ``setup.py``
@@ -215,7 +215,7 @@ class GitConnector(object):
         self._tag(version, 'version tag set by bda.recipe.deployment') 
         stdout, stderr, cmd = self._rungit(["push", "--tags"])
         log.info('Tagging done')
-    
+
     # proxy method
     @property
     def status(self):
@@ -226,5 +226,5 @@ class GitConnector(object):
     def status_buildout(self):
         wc = self.git_wc(context='buildout')
         return wc.status()
-        
+
 DeploymentPackage.connectors['git'] = GitConnector

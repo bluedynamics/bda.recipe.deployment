@@ -20,6 +20,7 @@ TESTFILES = [
 
 tempdir = tempfile.mkdtemp()
 
+
 def test_suite():
     XMLConfig('meta.zcml', zope.component)()
     return unittest.TestSuite([
@@ -34,5 +35,6 @@ def test_suite():
         ) for file in TESTFILES
     ])
 
+
 if __name__ == '__main__':
-    unittest.main(defaultTest='test_suite') 
+    unittest.main(defaultTest='test_suite')

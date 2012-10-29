@@ -1,7 +1,8 @@
 from setuptools.command.upload import upload as st_upload
 from setuptools.command.register import register as st_register
 from bda.recipe.deployment import env
-        
+
+
 class upload(st_upload):
 
     def finalize_options(self):
@@ -12,6 +13,7 @@ class upload(st_upload):
         self.username = env.waitress['username']
         self.password = env.waitress['password']        
         st_upload.finalize_options(self)
+
 
 class register(st_register):
 
