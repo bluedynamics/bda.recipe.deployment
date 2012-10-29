@@ -242,6 +242,10 @@ class DeploymentPackage(object):
         self.package = package
 
     def check_env(self, target_env):
+        print 'XXXX'
+        print self.package_options['env']
+        print target_env
+        print 'XXXX'
         if self.package_options['env'] == target_env:
             return True
         raise DeploymentError(
