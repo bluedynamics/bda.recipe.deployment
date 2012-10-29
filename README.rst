@@ -91,8 +91,8 @@ Proposed buildout structure::
 
     - ``base.cfg``
     - ``versions-global.cfg``
-    - ``sources-dev.cfg``,
-    - ``deployment.cfg``.
+    - ``sources-dev.cfg``
+    - ``deployment.cfg``
 
 **rc.cfg**
     Contains parts for local on a test-server. Included parts:
@@ -100,8 +100,8 @@ Proposed buildout structure::
     - ``base.cfg``
     - ``versions-global.cfg``
     - ``versions-rc.cfg``
-    - ``sources-rc.cfg``,
-    - ``deployment.cfg``.
+    - ``sources-rc.cfg``
+    - ``deployment.cfg``
 
 **live.cfg**
     Contains parts for deployment on a live-server. Included parts:
