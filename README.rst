@@ -2,6 +2,7 @@
 Buildout recipe managing project deployments
 ============================================
 
+
 Overview
 ========
 
@@ -88,27 +89,27 @@ Proposed buildout structure::
 **dev.cfg**
     Contains parts for local development, includes developer tools if
     necessary. Included parts:
-
-    - ``base.cfg``
-    - ``versions-global.cfg``
-    - ``sources-dev.cfg``
-    - ``deployment.cfg``
+    
+        - ``base.cfg``
+        - ``versions-global.cfg``
+        - ``sources-dev.cfg``
+        - ``deployment.cfg``
 
 **rc.cfg**
     Contains parts for local on a test-server. Included parts:
-
-    - ``base.cfg``
-    - ``versions-global.cfg``
-    - ``versions-rc.cfg``
-    - ``sources-rc.cfg``
-    - ``deployment.cfg``
+    
+        - ``base.cfg``
+        - ``versions-global.cfg``
+        - ``versions-rc.cfg``
+        - ``sources-rc.cfg``
+        - ``deployment.cfg``
 
 **live.cfg**
     Contains parts for deployment on a live-server. Included parts:
-
-    - ``base.cfg``
-    - ``versions-global.cfg``
-    - ``versions-live.cfg``
+    
+        - ``base.cfg``
+        - ``versions-global.cfg``
+        - ``versions-live.cfg``
 
 **base.cfg**
     contains all common sections and settingsof the buildout needed by all
