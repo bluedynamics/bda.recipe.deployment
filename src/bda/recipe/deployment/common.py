@@ -42,7 +42,7 @@ class _ConfigMixin(object):
 class Config(_ConfigMixin):
 
     def __init__(self, path, buildout_base=None, distserver=None, packages=None,
-                 sources=None, rcsources=None, rcversions=None, live=None, 
+                 sources=None, rcsources=None, rcversions=None, live=None,
                  env=None, sources_dir=None, register=None):
         _ConfigMixin.__init__(self, path)
         self.packages = packages
@@ -65,7 +65,7 @@ class Config(_ConfigMixin):
                 self.config.set('sources', key, val)
         if buildout_base is not None:
             self.config.set('settings', 'buildout_base', buildout_base)
-        if rcsources is not None:       
+        if rcsources is not None:
             self.config.set('settings', 'rc_sources', rcsources)
         if rcversions is not None:
             self.config.set('settings', 'rc_versions', rcversions)
@@ -145,7 +145,7 @@ class RcSourcesCFG(_ConfigMixin):
         self.config.set('sources', package, source)
 
     def get(self, package):
-        return self.read_option('sources', package)        
+        return self.read_option('sources', package)
 
 
 class VersionsCFG(_ConfigMixin):
@@ -159,7 +159,7 @@ class VersionsCFG(_ConfigMixin):
         self.config.set('versions', package, version)
 
     def get(self, package):
-        return self.config.get('versions', package)        
+        return self.config.get('versions', package)
 
 
 class ReleaseCFG(_ConfigMixin):
@@ -205,7 +205,7 @@ class PackageVersion(object):
         file.close()
         file = open(self.path, 'w')
         file.writelines(out)
-        file.close()    
+        file.close()
 
     version = property(_get_version, _set_version)
 
@@ -245,12 +245,12 @@ class DeploymentPackage(object):
         if self.package_options['env'] == target_env:
             return True
         raise DeploymentError(
-                "action for package '%s' for target env '%s' is not allowed (allow=%s)." % 
+                "action for package '%s' for target env '%s' is not allowed (allow=%s)." %
                 (self.package, target_env, self.package_options['env']))
 
     def commit(self, resource, message):
         """Commit resource of package with message.
-        
+
         @param resource: path to resource. If None, all resources in package
                          are committed
         @param message: commit message
@@ -259,7 +259,7 @@ class DeploymentPackage(object):
 
     def commit_buildout(self, resource, message):
         """Commit resource of package with message.
-        
+
         @param resource: path to resource. If None, all resources in package
                          are committed
         @param message: commit message
@@ -280,11 +280,11 @@ class DeploymentPackage(object):
 
     def merge(self, resource=None):
         """Merge from trunk to rc.
-        
+
         Function only callable in ``rc`` environment.
-        
+
         Raise ``DeploymentError`` if called in wrong environment.
-        
+
         @param resource: path to resource. If None, all resources in package
                          are merged
         """
@@ -293,14 +293,14 @@ class DeploymentPackage(object):
     def creatercbranch(self):
         """Create RC branch for package.
         """
-        self.connector.creatercbranch()        
+        self.connector.creatercbranch()
 
     def tag(self):
         """Tag package from rc to tags/version. Use version of
         package ``setup.py``
-        
+
         Function only callable in ``rc`` environment.
-        
+
         Raise ``DeploymentError`` if tag already exists or if called in
         wrong environment.
         """
@@ -308,9 +308,9 @@ class DeploymentPackage(object):
 
     def release(self):
         """Release package to configured dist server.
-        
+
         Raise ``DeploymentError`` if called in wrong environment.
-        
+
         XXX: make me thread safe.
         """
         setup = os.path.join(self.package_path, 'setup.py')
@@ -321,16 +321,18 @@ class DeploymentPackage(object):
                         'sdist',
                         '-d',
                         self.dist_server[7:]]
-            res = execfile('setup.py', globals(), {'__file__': setup})
+            setup_globals = copy.copy(globals())
+            setup_globals['__file__'] = setup
+            res = execfile('setup.py', setup_globals)
         else:
             pwdmgr = PWDManager(self.config.package(self.package))
             username, password = pwdmgr.get()
-            sys.argv = ['setup.py', 
+            sys.argv = ['setup.py',
                         'sdist',
-                        'deploymentregister',            
+                        'deploymentregister',
                         'deploymentupload']
             if self.config.package(self.package) in self.register_dist:
-                sys.argv.append('deploymentregister')  
+                sys.argv.append('deploymentregister')
             env.waitress = {
                 'repository': self.dist_server,
                 'username': username,
@@ -342,10 +344,10 @@ class DeploymentPackage(object):
 
     def export_rc(self):
         """Export package rc repo info to configured rc sources config.
-        
+
         Function only callable in ``dev`` environment.
         """
-        sources = RcSourcesCFG(self.config.rc_sources)        
+        sources = RcSourcesCFG(self.config.rc_sources)
         sources.set(self.package, self.connector.rc_source)
         sources()
 
@@ -355,7 +357,7 @@ class DeploymentPackage(object):
         return sources.get(self.package)
 
     def export_version(self):
-        """Export current resource version to configured live/rc versions 
+        """Export current resource version to configured live/rc versions
         config.
         """
         if self.package_options['env'] == 'dev':
@@ -374,19 +376,19 @@ class DeploymentPackage(object):
     @property
     def live_version(self):
         versions = VersionsCFG(self.config.live_versions)
-        return versions.read_option('versions', self.package)        
+        return versions.read_option('versions', self.package)
 
     @property
     def _source(self):
         source = self.config.source(self.package)
         if source is None:
             raise KeyError, \
-                  'no package %s found in [sources] section!' % self.package +\
+                  'no package %s found in [sources] section!' % self.package + \
                   ' maybe misspelled?'
         return source
 
     @property
-    def connector_name(self):        
+    def connector_name(self):
         return self._source.split(' ')[0]
 
     @property
@@ -418,8 +420,8 @@ class DeploymentPackage(object):
         path = os.path.join(self.package_path, 'setup.py')
         if os.path.exists(path):
             return PackageVersion(path).version
-        else: 
-            return 'unversioned' 
+        else:
+            return 'unversioned'
 
     @property
     def package_uri(self):
