@@ -316,13 +316,13 @@ class DeploymentPackage(object):
         setup = os.path.join(self.package_path, 'setup.py')
         old_argv = copy.copy(sys.argv)
         os.chdir(self.package_path)
+        setup_globals = copy.copy(globals())
+        setup_globals['__file__'] = setup
         if self.dist_server.startswith('file://'):
             sys.argv = ['setup.py',
                         'sdist',
                         '-d',
                         self.dist_server[7:]]
-            setup_globals = copy.copy(globals())
-            setup_globals['__file__'] = setup
             res = execfile('setup.py', setup_globals)
         else:
             pwdmgr = PWDManager(self.config.package(self.package))
@@ -338,7 +338,7 @@ class DeploymentPackage(object):
                 'username': username,
                 'password': password,
             }
-            res = execfile('setup.py', globals(), {'__file__': setup})
+            res = execfile('setup.py', setup_globals)
             env.waitress = dict()
         sys.argv = old_argv
 
