@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 import os
-version = "2.0b4"
+version = "2.0b5"
 
 shortdesc = "python deployment process based on buildout and mr.developer"
 longdesc = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
