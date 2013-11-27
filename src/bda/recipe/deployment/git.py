@@ -69,8 +69,10 @@ class GitConnector(object):
         """Commit means here a commit and push in one
         """
         if self.status == CLEAN:
-            log.info('Abort commit %s, working directory is clean' % \
-                     (resource == '-a' and 'all' or resource))
+            log.info(
+                'Abort commit %s, working directory is clean' %
+                (resource == '-a' and 'all' or resource)
+            )
             return
         log.info('Initiate commit  %s' % (resource == '-a' and 'all' or
                                           resource))
