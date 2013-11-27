@@ -59,7 +59,7 @@ class SVNConnector(SVNWorkingCopy):
         args = ["svn", "merge", to_resource, from_resource, wc_resource]
         log.info(' '.join(args))
         kwargs = {}
-        stdout, stderr, returncode = self._svn_communicate(args, from_resource, 
+        stdout, stderr, returncode = self._svn_communicate(args, from_resource,
                                                            **kwargs)
         if returncode != 0:
             msg = "Subversion merge for '%s' failed.\n%s" % (resource, stderr)
@@ -75,7 +75,8 @@ class SVNConnector(SVNWorkingCopy):
             log.info(msg)
             args = ["svn", "mkdir", branches_path, '-m', msg]
             kwargs = {}
-            stdout, stderr, returncode = self._svn_communicate(args, source_uri,
+            stdout, stderr, returncode = self._svn_communicate(args,
+                                                               source_uri,
                                                                **kwargs)
             if returncode != 0:
                 msg = u"'Cannot create directory %s'" % branches_path
@@ -92,11 +93,12 @@ class SVNConnector(SVNWorkingCopy):
 
     def tag(self):
         msg = "'Tag %s version %s'" % (self.package.package,
-                                      self.package.version)
+                                       self.package.version)
         log.info(msg)
         if self._svn_exists(self._tag_uri):
             msg = "Tagging for '%s' failed. Version %s already exists" % (
-                        self.package.package, self.package.version)
+                self.package.package, self.package.version
+            )
             raise DeploymentError(msg)
         self.commit('', 'RC Tag')
         tags_path = '%s/tags' % self._svn_base_path
@@ -114,7 +116,7 @@ class SVNConnector(SVNWorkingCopy):
         msg = "'Tag %s version'" % self.package.version
         self._svn_copy(self.package.package_uri, self._tag_uri, msg)
 
-    def _svn_exists(self, uri):      
+    def _svn_exists(self, uri):
         log.info("Check for %s" % uri)
         cmd = subprocess.Popen(["svn", "ls", "--non-interactive", uri],
                                stdout=subprocess.PIPE,
@@ -146,8 +148,9 @@ class SVNConnector(SVNWorkingCopy):
         if idx < 1:
             idx = idx = uri.find('/branches/')
         if idx < 1:
-            raise ValueError, \
-                  'URI not valid (trunk or branches needed): %s' % uri
+            raise ValueError(
+                'URI not valid (trunk or branches needed): %s' % uri
+            )
         return uri[:idx]
 
     @property

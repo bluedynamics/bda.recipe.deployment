@@ -6,15 +6,15 @@ import copy
 import getpass
 import ConfigParser
 import logging
-from distutils.dist import Distribution
 from bda.recipe.deployment import env
 
-log = logging.getLogger('bda.recipe.deployment')
 
+log = logging.getLogger('bda.recipe.deployment')
 version_pattern = re.compile("""[ \t]*version[ \t]*=[ \t]*["\'](.*)["\'].*""")
 
 
-class DeploymentError(Exception): pass
+class DeploymentError(Exception):
+    pass
 
 
 class _ConfigMixin(object):
@@ -41,9 +41,9 @@ class _ConfigMixin(object):
 
 class Config(_ConfigMixin):
 
-    def __init__(self, path, buildout_base=None, distserver=None, packages=None,
-                 sources=None, rcsources=None, rcversions=None, live=None,
-                 env=None, sources_dir=None, register=None):
+    def __init__(self, path, buildout_base=None, distserver=None,
+                 packages=None, sources=None, rcsources=None, rcversions=None,
+                 live=None, env=None, sources_dir=None, register=None):
         _ConfigMixin.__init__(self, path)
         self.packages = packages
         if not self.config.has_section('distserver'):
@@ -171,11 +171,11 @@ class ReleaseCFG(_ConfigMixin):
         self.config.set(server, 'password', password)
 
     def get(self, server):
-        if not self.config.has_option(server, 'username') \
-          or not self.config.has_option(server, 'password'):
+        if not self.config.has_option(server, 'username')\
+                or not self.config.has_option(server, 'password'):
             return None
-        return self.config.get(server, 'username'), \
-               self.config.get(server, 'password')
+        return self.config.get(server, 'username'),\
+            self.config.get(server, 'password')
 
 
 class PackageVersion(object):
@@ -245,8 +245,9 @@ class DeploymentPackage(object):
         if self.package_options['env'] == target_env:
             return True
         raise DeploymentError(
-                "action for package '%s' for target env '%s' is not allowed (allow=%s)." %
-                (self.package, target_env, self.package_options['env']))
+            "action for package '%s' for target env '%s' is not allowed "
+            "(allow=%s)." %
+            (self.package, target_env, self.package_options['env']))
 
     def commit(self, resource, message):
         """Commit resource of package with message.
@@ -382,9 +383,10 @@ class DeploymentPackage(object):
     def _source(self):
         source = self.config.source(self.package)
         if source is None:
-            raise KeyError, \
-                  'no package %s found in [sources] section!' % self.package + \
-                  ' maybe misspelled?'
+            raise KeyError(
+                'no package %s found in [sources] section!' %
+                '%s maybe misspelled?' % self.package
+            )
         return source
 
     @property
@@ -425,5 +427,5 @@ class DeploymentPackage(object):
 
     @property
     def package_uri(self):
-        source = self.config.source(self.package)
+        # source = self.config.source(self.package)
         return self._source.split(' ')[1].rstrip('/')

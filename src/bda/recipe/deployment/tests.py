@@ -1,4 +1,3 @@
-import os
 import tempfile
 import unittest
 import interlude
@@ -7,9 +6,9 @@ from pprint import pprint
 from zope.testing import doctest
 from zope.configuration.xmlconfig import XMLConfig
 
-optionflags = doctest.NORMALIZE_WHITESPACE | \
-              doctest.ELLIPSIS | \
-              doctest.REPORT_ONLY_FIRST_FAILURE
+optionflags = doctest.NORMALIZE_WHITESPACE |\
+    doctest.ELLIPSIS |\
+    doctest.REPORT_ONLY_FIRST_FAILURE
 
 TESTFILES = [
     'common.rst',
@@ -25,7 +24,7 @@ def test_suite():
     XMLConfig('meta.zcml', zope.component)()
     return unittest.TestSuite([
         doctest.DocFileSuite(
-            file, 
+            file,
             optionflags=optionflags,
             globs={
                 'pprint': pprint,

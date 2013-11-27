@@ -11,7 +11,7 @@ class upload(st_upload):
         """
         self.repository = env.waitress['repository']
         self.username = env.waitress['username']
-        self.password = env.waitress['password']        
+        self.password = env.waitress['password']
         st_upload.finalize_options(self)
 
 
