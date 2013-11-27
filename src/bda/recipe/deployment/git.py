@@ -1,4 +1,4 @@
-from mr.developer.git import gitWorkingCopyFactory
+from mr.developer.git import GitWorkingCopy
 from bda.recipe.deployment.common import DeploymentError
 from bda.recipe.deployment.common import DeploymentPackage
 import logging
@@ -30,7 +30,7 @@ class GitConnector(object):
             raise DeploymentError('Commit context "%s" not allowed.' % context)
 
     def git_wc(self, context="package"):
-        return gitWorkingCopyFactory(self.source(context=context))
+        return GitWorkingCopy(self.source(context=context))
 
     def _rungit(self, command, msg='', context='package'):
         """runs git command in a given context

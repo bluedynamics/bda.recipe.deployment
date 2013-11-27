@@ -10,8 +10,8 @@ Create a local bare git repo with one file::
     >>> GITPATH = os.path.join(tempdir, 'foo.bare-git')
     >>> GITINITPATH = os.path.join(tempdir, 'foo.init-git')
     >>> os.mkdir(GITPATH)
-    >>> from mr.developer.git import  gitWorkingCopyFactory
-    >>> gwc = gitWorkingCopyFactory({})
+    >>> from mr.developer.git import  GitWorkingCopy
+    >>> gwc = GitWorkingCopy({})
     
     >>> cmd = gwc.run_git(['--bare', 'init', '-q', GITPATH])
     >>> stdout, stderr = cmd.communicate()
@@ -221,4 +221,3 @@ Cleanup
     >>> import shutil
     >>> shutil.rmtree(SOURCESDIR, ignore_errors=True)    
     >>> shutil.rmtree(GITPATH, ignore_errors=True)    
-    

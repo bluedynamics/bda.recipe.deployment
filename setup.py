@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 import os
-version = "2.0b5"
+version = "2.0b6.dev"
 
 shortdesc = "python deployment process based on buildout and mr.developer"
 longdesc = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
@@ -31,7 +31,7 @@ setup(
         'setuptools',
         'zope.component',
         'zope.configuration',
-        'mr.developer',
+        'mr.developer>1.19',
     ],
     extras_require=dict(
         test=[
