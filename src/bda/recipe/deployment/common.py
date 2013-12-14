@@ -106,6 +106,10 @@ class Config(_ConfigMixin):
     def registerdist(self):
         return self.read_option('settings', 'register')
 
+    @property
+    def buildout_repo(self):
+        return self.read_option('settings', 'buildout_repo')
+
     def distserver(self, name):
         return self.read_option('distserver', name)
 
@@ -265,7 +269,8 @@ class DeploymentPackage(object):
                          are committed
         @param message: commit message
         """
-        self.connector.commit_buildout(resource, message)
+        buildout_connector =  self.connectors[self.config.buildout_repo]
+        buildout_connector.commit_buildout(resource, message)
 
     def commit_rc_source(self):
         """Function committing RC source file.
@@ -423,7 +428,9 @@ class DeploymentPackage(object):
         if os.path.exists(path):
             return PackageVersion(path).version
         else:
-            return 'unversioned'
+            if self.config.env == 'rc':
+	        return '---' 
+            return 'not set' + self.config.env
 
     @property
     def package_uri(self):
