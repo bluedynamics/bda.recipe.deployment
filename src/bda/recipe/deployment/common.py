@@ -106,10 +106,6 @@ class Config(_ConfigMixin):
     def registerdist(self):
         return self.read_option('settings', 'register')
 
-    @property
-    def buildout_repo(self):
-        return self.read_option('settings', 'buildout_repo')
-
     def distserver(self, name):
         return self.read_option('distserver', name)
 
@@ -269,8 +265,9 @@ class DeploymentPackage(object):
                          are committed
         @param message: commit message
         """
-        buildout_connector =  self.connectors[self.config.buildout_repo]
-        buildout_connector.commit_buildout(resource, message)
+        # XXX dont use same connector here, since repo and buildout may differ 
+        # in type (git/svn)
+        self.connector.commit_buildout(resource, message)
 
     def commit_rc_source(self):
         """Function committing RC source file.
