@@ -45,23 +45,24 @@ Process
 
 Overall process:
 
-1) Developer uses ``dev.cfg``. If changes were done
-``./bin/deploy candidate MODULENAME NEWVERSION`` is called. Modules RC-branch is
-created/synced and the sources section in file for rc environment is modified
-and committed.
+#. Developer uses ``dev.cfg``. If changes were done
+   ``bin/deploy candidate MODULENAME NEWVERSION`` is called. Modules RC-branch
+   is created/synced and the sources section in file for rc environment is
+   modified and committed.
 
-2) Release Manager uses ``rc.cfg`` on its testing checkout. After svn/git update
-and buildout (re-)run the setup contains all release candidates branches.
-Software can be tested. In a second cycle Release Manager can merge changes from
-development branch into rc branch.
+#. Release Manager uses ``rc.cfg`` on its testing checkout. After svn/git
+   update and buildout (re-)run the setup contains all release candidates
+   branches. Software can be tested. In a second cycle Release Manager can
+   merge changes from development branch into rc branch.
 
-3) Release Manager decides to release a package after testing for live-usage.
-In rc-environment ``./bin/deploy release MODULENAME `` is called and the egg is
-uploaded to the configured eggserver or saved local. The live-versions section
-in file for live-environment is modifed and committed.
+#. Release Manager decides to release a package after testing for live-usage.
+   In rc-environment ``bin/deploy release MODULENAME`` is called and the egg is
+   uploaded to the configured eggserver or saved local. The live-versions
+   section in file for live-environment is modifed and committed.
 
-4) Live-System-Administrator uses ``live.cfg`` on the live-deployment maschine.
-After git/svn up and buildout (re-)run the most recent releases are available.
+#. Live-System-Administrator uses ``live.cfg`` on the live-deployment maschine.
+   After git/svn up and buildout (re-)run the most recent releases are
+   available.
 
 Optional (if configured) the RC steps 2 and 3  can be omitted and a release may
 happen from dev direct to live.
@@ -89,7 +90,7 @@ Proposed buildout structure::
 **dev.cfg**
     Contains parts for local development, includes developer tools if
     necessary. Included parts:
-    
+
         - ``base.cfg``
         - ``versions-global.cfg``
         - ``sources-dev.cfg``
@@ -97,7 +98,7 @@ Proposed buildout structure::
 
 **rc.cfg**
     Contains parts for local on a test-server. Included parts:
-    
+
         - ``base.cfg``
         - ``versions-global.cfg``
         - ``versions-rc.cfg``
@@ -106,7 +107,7 @@ Proposed buildout structure::
 
 **live.cfg**
     Contains parts for deployment on a live-server. Included parts:
-    
+
         - ``base.cfg``
         - ``versions-global.cfg``
         - ``versions-live.cfg``
@@ -214,3 +215,4 @@ Contributors
 
 - Robert Niederrreiter <rnix [at] squarewave [dot] at>
 
+- Daniel Widerin <daniel@widerin.net>
