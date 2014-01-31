@@ -11,3 +11,8 @@ src/*.egg-info
 .tmp*
 .settings
 dist
+
+# virtualenv
+.Python
+lib
+include
