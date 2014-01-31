@@ -59,11 +59,14 @@ class GitConnector(object):
         message = '\n'.join([command, msg, stdout, stderr])
         raise DeploymentError('Failed command: %s' % message)
 
-    def _pull(self, branch='master'):
-        log.info('Initiate pull origin %s' % branch)
-        cmd = ['pull', 'origin', branch]
+    def _fetch(self):
+        stdout, stderr, cmd = self._rungit(['fetch', 'origin'])
+
+    def _rebase(self, branch='master'):
+        log.info('Rebase %s' % branch)
+        cmd = ['rebase', branch]
         stdout, stderr, cmd = self._rungit(cmd)
-        log.info('Pull done.')
+        log.info('Rebase done.')
 
     def commit(self, resource='-a', message='bda.recipe.deployment commit'):
         """Commit means here a commit and push in one
@@ -192,8 +195,11 @@ class GitConnector(object):
     def merge(self, resource=None):
         """merges changes from dev branch to rc branch"""
         log.info('Merge master into rc branch')
+        stdout, stderr, cmd = self._rungit(["fetch"])
+
         if self.status == DIRTY:
             self.commit(message='bda.recipe.deployment pre merge commit')
+            self._rebase('rc')
         if self.status == DIRTY:
             raise DeploymentError(
                 'Not clean after pre merge commit: %s' % self.package.package
@@ -201,10 +207,10 @@ class GitConnector(object):
         if not self._has_rc_branch():
             # hmm, do we need this?
             self.creatercbranch()
-        self._pull()
-        self._pull('rc')
-        stdout, stderr, cmd = self._rungit(["checkout", "rc"])
+
+        # Fetch changes
         stdout, stderr, cmd = self._rungit(["merge", "master"])
+        stdout, stderr, cmd = self._rungit(["push", "-u", "origin", "rc"])
         log.info('Merge done')
 
     def _tags(self):
