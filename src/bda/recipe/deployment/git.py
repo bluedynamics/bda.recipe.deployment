@@ -77,7 +77,7 @@ class GitConnector(object):
                 (resource == '-a' and 'all' or resource)
             )
             return
-        log.info('Initiate commit  %s' % (resource == '-a' and 'all' or
+        log.info('Initiate commit %s' % (resource == '-a' and 'all' or
                                           resource))
         if resource != '-a':
             stdout, stderr, cmd = self._rungit(["add", resource])
@@ -195,11 +195,8 @@ class GitConnector(object):
     def merge(self, resource=None):
         """merges changes from dev branch to rc branch"""
         log.info('Merge master into rc branch')
-        stdout, stderr, cmd = self._rungit(["fetch"])
-
         if self.status == DIRTY:
             self.commit(message='bda.recipe.deployment pre merge commit')
-            self._rebase('rc')
         if self.status == DIRTY:
             raise DeploymentError(
                 'Not clean after pre merge commit: %s' % self.package.package
@@ -208,8 +205,12 @@ class GitConnector(object):
             # hmm, do we need this?
             self.creatercbranch()
 
+        stdout, stderr, cmd = self._rungit(["fetch"])
+        self._rebase('rc')
+
         # Fetch changes
-        stdout, stderr, cmd = self._rungit(["merge", "master"])
+        stdout, stderr, cmd = self._rungit([
+            "merge", "origin/master", "-m 'RC Merge'"])
         stdout, stderr, cmd = self._rungit(["push", "-u", "origin", "rc"])
         log.info('Merge done')
 
