@@ -77,8 +77,8 @@ class GitConnector(object):
                 (resource == '-a' and 'all' or resource)
             )
             return
-        log.info('Initiate commit %s' % (resource == '-a' and 'all' or
-                                          resource))
+        log.info('Initiate commit %s' % (
+            resource == '-a' and 'all' or resource))
         if resource != '-a':
             stdout, stderr, cmd = self._rungit(["add", resource])
         message = '"%s"' % message
@@ -210,7 +210,7 @@ class GitConnector(object):
 
         # Fetch changes
         stdout, stderr, cmd = self._rungit([
-            "merge", "origin/master", "-m 'RC Merge'"])
+            "merge", "origin/master", "-m", "RC Merge"])
         stdout, stderr, cmd = self._rungit(["push", "-u", "origin", "rc"])
         log.info('Merge done')
 
