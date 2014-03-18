@@ -59,11 +59,14 @@ class GitConnector(object):
         message = '\n'.join([command, msg, stdout, stderr])
         raise DeploymentError('Failed command: %s' % message)
 
-    def _pull(self, branch='master'):
-        log.info('Initiate pull origin %s' % branch)
-        cmd = ['pull', 'origin', branch]
+    def _fetch(self):
+        stdout, stderr, cmd = self._rungit(['fetch', 'origin'])
+
+    def _rebase(self, branch='master'):
+        log.info('Rebase %s' % branch)
+        cmd = ['rebase', branch]
         stdout, stderr, cmd = self._rungit(cmd)
-        log.info('Pull done.')
+        log.info('Rebase done.')
 
     def commit(self, resource='-a', message='bda.recipe.deployment commit'):
         """Commit means here a commit and push in one
@@ -74,8 +77,8 @@ class GitConnector(object):
                 (resource == '-a' and 'all' or resource)
             )
             return
-        log.info('Initiate commit  %s' % (resource == '-a' and 'all' or
-                                          resource))
+        log.info('Initiate commit %s' % (
+            resource == '-a' and 'all' or resource))
         if resource != '-a':
             stdout, stderr, cmd = self._rungit(["add", resource])
         message = '"%s"' % message
@@ -201,10 +204,14 @@ class GitConnector(object):
         if not self._has_rc_branch():
             # hmm, do we need this?
             self.creatercbranch()
-        self._pull()
-        self._pull('rc')
-        stdout, stderr, cmd = self._rungit(["checkout", "rc"])
-        stdout, stderr, cmd = self._rungit(["merge", "master"])
+
+        stdout, stderr, cmd = self._rungit(["fetch"])
+        self._rebase('rc')
+
+        # Fetch changes
+        stdout, stderr, cmd = self._rungit([
+            "merge", "origin/master", "-m", "RC Merge"])
+        stdout, stderr, cmd = self._rungit(["push", "-u", "origin", "rc"])
         log.info('Merge done')
 
     def _tags(self):
