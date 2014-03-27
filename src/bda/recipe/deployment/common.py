@@ -278,8 +278,8 @@ class DeploymentPackage(object):
         """Function committing LIVE/RC source file.
         """
         if self.package_options['env'] == 'dev':
-            self.commit_buildout(self.config.rc_versions, '"RC versions updated"')
-        self.commit_buildout(self.config.live_versions, '"LIVE versions updated"')
+            self.commit_buildout(self.config.rc_versions, 'RC versions updated')
+        self.commit_buildout(self.config.live_versions, 'LIVE versions updated')
 
     def merge(self, resource=None):
         """Merge from trunk to rc.
