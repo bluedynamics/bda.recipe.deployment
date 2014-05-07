@@ -15,7 +15,10 @@ class GitConnector(object):
 
     @property
     def rc_source(self):
-        return 'git %s branch=rc' % self.package.package_uri
+        return 'git {0} branch={1}'.format(
+            self.package.package_uri,
+            self.package.branchname
+        )
 
     def source(self, context="package"):
         if context == 'package':
@@ -109,10 +112,11 @@ class GitConnector(object):
     def _has_rc_branch(self, remote=False):
         branches = self._get_branches()
         context = remote and 'origin' or None
-        return bool([
-            _ for _ in branches
-            if _['branch'] == 'rc' and _['remote'] == context
-        ])
+        return bool(
+            [_ for _ in branches
+             if _['branch'] == self.package.branch_name
+             and _['remote'] == context]
+        )
 
     def _current_branch(self):
         return [_['branch'] for _ in self._get_branches() if _['current']][0]
@@ -180,15 +184,24 @@ class GitConnector(object):
             # yes, connect it to the local branch, but OTOH this can be wrong
             return False
         if self._has_rc_branch(remote=True):
-            log.info('Remote rc branch exists, checkout')
-            stdout, stderr, cmd = self._rungit(["checkout", "-b", "rc",
-                                                "origin/rc"])
+            log.info(
+                'Remote rc branch '
+                '{0} exists, checkout'.format(self.package.branch_name)
+            )
+            stdout, stderr, cmd = self._rungit(
+                ["checkout", "-b", self.package.branch_name,
+                 "origin/{0}".format(self.package.branch_name)]
+            )
             stdout, stderr, cmd = self._rungit(["checkout", "master"])
             return True
         else:
             log.info('No remote rc branch, checkout new and push')
-            stdout, stderr, cmd = self._rungit(["checkout", "-b", "rc"])
-            stdout, stderr, cmd = self._rungit(["push", "-u", "origin", "rc"])
+            stdout, stderr, cmd = self._rungit(
+                ["checkout", "-b", self.package.branch_name]
+            )
+            stdout, stderr, cmd = self._rungit(
+                ["push", "-u", "origin", self.package.branch_name]
+            )
             stdout, stderr, cmd = self._rungit(["checkout", "master"])
             return True
 
@@ -206,12 +219,16 @@ class GitConnector(object):
             self.creatercbranch()
 
         stdout, stderr, cmd = self._rungit(["fetch"])
-        self._rebase('rc')
+        self._rebase(self.package.branch_name)
 
         # Fetch changes
-        stdout, stderr, cmd = self._rungit([
-            "merge", "origin/master", "-m", "RC Merge"])
-        stdout, stderr, cmd = self._rungit(["push", "-u", "origin", "rc"])
+        stdout, stderr, cmd = self._rungit(
+            ["merge", "origin/master", "-m",
+             "RC Merge ({0})".format(self.package.branch_name)]
+        )
+        stdout, stderr, cmd = self._rungit(
+            ["push", "-u", "origin", self.package.branch_name]
+        )
         log.info('Merge done')
 
     def _tags(self):

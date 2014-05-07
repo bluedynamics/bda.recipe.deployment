@@ -155,7 +155,10 @@ class SVNConnector(SVNWorkingCopy):
 
     @property
     def _rc_uri(self):
-        uri = '%s/branches/rc' % self._svn_base_path
+        uri = '{0}/branches/{1}'.format(
+            self._svn_base_path,
+            self.package.branches_path
+        )
         if self.package.package_uri.endswith('/trunk'):
             return uri
         idx = self.package.package_uri.rfind('/') + 1

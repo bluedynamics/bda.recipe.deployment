@@ -45,6 +45,7 @@ class Recipe(object):
         if not self.rc_sources.startswith(base_path):
             self.rc_sources = os.path.join(base_path, self.rc_sources)
 
+        self.rc_branch_name = options.get('rc_branch_name', 'rc')
         self.rc_versions = options.get('rc_versions')
         if not self.rc_versions:
             raise zc.buildout.UserError(u'No RC versions config defined.')
@@ -75,7 +76,7 @@ class Recipe(object):
         sources = dev_sources.as_dict('sources')
         Config(path, self.buildout_base, self.distserver, self.packages,
                sources, self.rc_sources, self.rc_versions, self.live_versions,
-               self.env, self.sources_dir, self.register)()
+               self.env, self.sources_dir, self.register, self.rc_branch_name)()
 
     def update(self):
         return self.install()

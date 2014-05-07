@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
-import re
+from bda.recipe.deployment import env
+
+import ConfigParser
 import copy
 import getpass
-import ConfigParser
 import logging
-from bda.recipe.deployment import env
+import os
+import re
+import sys
 
 
 log = logging.getLogger('bda.recipe.deployment')
@@ -43,7 +44,8 @@ class Config(_ConfigMixin):
 
     def __init__(self, path, buildout_base=None, distserver=None,
                  packages=None, sources=None, rcsources=None, rcversions=None,
-                 live=None, env=None, sources_dir=None, register=None):
+                 live=None, env=None, sources_dir=None, register=None,
+                 branchname=None):
         _ConfigMixin.__init__(self, path)
         self.packages = packages
         if not self.config.has_section('distserver'):
@@ -77,6 +79,8 @@ class Config(_ConfigMixin):
             self.config.set('settings', 'sources_dir', sources_dir)
         if register is not None:
             self.config.set('settings', 'register', register)
+        if branchname is not None:
+            self.config.set('settings', 'branch_name', branchname)
 
     @property
     def buildout_base(self):
@@ -105,6 +109,10 @@ class Config(_ConfigMixin):
     @property
     def registerdist(self):
         return self.read_option('settings', 'register')
+
+    @property
+    def branch_name(self):
+        return self.read_option('settings', 'branch_name')
 
     def distserver(self, name):
         return self.read_option('distserver', name)
@@ -265,7 +273,7 @@ class DeploymentPackage(object):
                          are committed
         @param message: commit message
         """
-        # XXX dont use same connector here, since repo and buildout may differ 
+        # XXX dont use same connector here, since repo and buildout may differ
         # in type (git/svn)
         self.connector.commit_buildout(resource, message)
 
@@ -278,8 +286,14 @@ class DeploymentPackage(object):
         """Function committing LIVE/RC source file.
         """
         if self.package_options['env'] == 'dev':
-            self.commit_buildout(self.config.rc_versions, 'RC versions updated')
-        self.commit_buildout(self.config.live_versions, 'LIVE versions updated')
+            self.commit_buildout(
+                self.config.rc_versions,
+                'RC versions updated'
+            )
+        self.commit_buildout(
+            self.config.live_versions,
+            'LIVE versions updated'
+        )
 
     def merge(self, resource=None):
         """Merge from trunk to rc.
@@ -326,7 +340,7 @@ class DeploymentPackage(object):
                         'sdist',
                         '-d',
                         self.dist_server[7:]]
-            res = execfile('setup.py', setup_globals)
+            execfile('setup.py', setup_globals)
         else:
             pwdmgr = PWDManager(self.config.package(self.package))
             username, password = pwdmgr.get()
@@ -341,7 +355,7 @@ class DeploymentPackage(object):
                 'username': username,
                 'password': password,
             }
-            res = execfile('setup.py', setup_globals)
+            execfile('setup.py', setup_globals)
             env.waitress = dict()
         sys.argv = old_argv
 
@@ -426,10 +440,14 @@ class DeploymentPackage(object):
             return PackageVersion(path).version
         else:
             if self.config.env == 'rc':
-	        return '---' 
+                return '---'
             return 'not set' + self.config.env
 
     @property
     def package_uri(self):
         # source = self.config.source(self.package)
         return self._source.split(' ')[1].rstrip('/')
+
+    @property
+    def branch_name(self):
+        return self.branch_name
