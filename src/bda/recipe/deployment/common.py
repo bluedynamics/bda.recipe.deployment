@@ -182,7 +182,7 @@ class ReleaseCFG(_ConfigMixin):
         if not self.config.has_option(server, 'username')\
                 or not self.config.has_option(server, 'password'):
             return None
-        return self.config.get(server, 'username'),\
+        return self.config.get(server, 'username'), \
             self.config.get(server, 'password')
 
 
@@ -450,4 +450,4 @@ class DeploymentPackage(object):
 
     @property
     def branch_name(self):
-        return self.branch_name
+        return self.config.branch_name
