@@ -115,7 +115,12 @@ class Config(_ConfigMixin):
         return self.read_option('settings', 'branch_name')
 
     def distserver(self, name):
-        return self.read_option('distserver', name)
+        distserver = self.read_option('distserver', name)
+        if not distserver:
+            raise DeploymentError(
+                'There is no distserver mapped to {0}!'.format(name)
+            )
+        return distserver
 
     def _package_split(self, pkgstr):
         if not pkgstr:
