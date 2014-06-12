@@ -17,7 +17,7 @@ class GitConnector(object):
     def rc_source(self):
         return 'git {0} branch={1}'.format(
             self.package.package_uri,
-            self.package.branchname
+            self.package.branch_name
         )
 
     def source(self, context="package"):
