@@ -50,23 +50,29 @@ def repopasswd(arguments):
     pwdmgr = PWDManager(arguments.distserver[0])
     pwdmgr.set()
 
-sub_rp = deploy_subparsers.add_parser('repopasswd',
-                               help='Set user and password for server')
-sub_rp.add_argument('distserver', nargs=1,
-                   choices=[k for k,v in config.config.items('distserver')],
-                   help='name of the distserver')
+sub_rp = deploy_subparsers.add_parser(
+    'repopasswd',
+    help='Set user and password for server'
+)
+sub_rp.add_argument(
+    'distserver', nargs=1,
+    choices=[k for k, v in config.config.items('distserver')],
+    help='name of the distserver'
+)
 sub_rp.set_defaults(func=repopasswd)
 #------------------------------------------------------------------------------
 
 
 def _set_version(package, version):
     log.info("Set version for package")
-    deploymentpackage = DeploymentPackage(config, package)
     path = os.path.join(config.sources_dir, package, 'setup.py')
     if not os.path.exists(path):
         log.error("Invalid package name %s" % package)
     pv = PackageVersion(path)
-    pv.version = version
+    if pv.version != version:
+        pv.version = version
+        return True
+    return False
 
 
 def _show_version(package):
@@ -317,8 +323,15 @@ def candidate(args):
     log.info("Complete deployment of release candidate %s with version %s" %
              (package, newversion))
     try:
-        _set_version(package, newversion)
-        deploymentpackage.commit('setup.py', 'Version Change')
+        changed = _set_version(package, newversion)
+        if not changed:
+            log.warn(
+                "Version {0} was already set, version change skipped.".format(
+                    newversion
+                )
+            )
+        else:
+            deploymentpackage.commit('setup.py', 'Version Change')
         deploymentpackage.creatercbranch()
         deploymentpackage.export_rc()
         deploymentpackage.commit_rc_source()

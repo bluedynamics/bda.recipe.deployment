@@ -31,7 +31,7 @@ setup(
         'setuptools',
         'zope.component',
         'zope.configuration',
-        'mr.developer>1.19',
+        'mr.developer>=1.28',
     ],
     extras_require=dict(
         test=[
