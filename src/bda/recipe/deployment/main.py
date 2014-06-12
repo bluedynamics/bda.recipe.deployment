@@ -255,7 +255,7 @@ sub_rel.set_defaults(func=release)
 #------------------------------------------------------------------------------
 
 
-def exportliveversion(*args):
+def exportliveversion(args):
     log.info("Export live version")
     deploymentpackage = DeploymentPackage(config, args.package[0])
     deploymentpackage.check_env(config.env)
