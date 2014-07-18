@@ -1,5 +1,0 @@
-#---AGX Properties---
-#Mon Aug 16 11:47:38 CEST 2010
-profiles=pyegg
-generator=/home/rnix/workspace/AGX3/bin/agx
-target=/home/rnix/workspace/bankenverband/devsrc/bda.recipe.deployment
